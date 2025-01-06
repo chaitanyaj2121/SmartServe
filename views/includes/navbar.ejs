@@ -1,0 +1,57 @@
+<nav class="navbar navbar-expand-md bg-body-light sticky-top shadow-sm">
+    <div class="container-fluid">
+      <!-- Logo and Title -->
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <i class="fa-solid fa-utensils"></i>
+        <span class="ms-2 fw-bold">MessMate</span>
+      </a>
+  
+      <!-- Toggle Button for Mobile View -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <!-- Navbar Links -->
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link" href="/">
+            <i class="fa-solid fa-house"></i> Home
+          </a>
+          <a class="nav-link" href="/dashboard">
+            <i class="fa-solid fa-chart-line"></i> Dashboard
+          </a>
+          <a class="nav-link" href="/customers">
+            <i class="fa-solid fa-users"></i> Manage Customers
+          </a>
+          <a class="nav-link" href="/attendance">
+            <i class="fa-solid fa-calendar-check"></i> Attendance
+          </a>
+          <a class="nav-link" href="/notifications">
+            <i class="fa-solid fa-bell"></i> Notifications
+          </a>
+        </div>
+  
+        <!-- Right-Side Navigation -->
+        <div class="navbar-nav ms-auto">
+          <% if (!currUser) { %>
+            <a class="nav-link" href="/signup">
+              <i class="fa-solid fa-user-plus"></i> Sign Up
+            </a>
+            <a class="nav-link" href="/login">
+              <i class="fa-solid fa-right-to-bracket"></i> Log in
+            </a>
+          <% } %>
+          <% if (currUser) { %>
+            <a class="nav-link" href="/profile">
+              <i class="fa-solid fa-user"></i> Profile
+            </a>
+            <a class="nav-link" href="/logout">
+              <i class="fa-solid fa-right-from-bracket"></i> Log out
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </nav>
+  

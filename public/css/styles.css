@@ -1,0 +1,14 @@
+.navbar{
+    height: 5rem;
+    background-color: white;
+    border-bottom: 1px solid gray;
+}
+
+.fa-compass{
+    color: #fe424d;
+    font-size: 2rem;
+}
+
+.nav-link{
+    color: #222222 !important;
+}
