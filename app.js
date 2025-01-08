@@ -197,3 +197,57 @@ catch(error){
     res.redirect("/");
 }
 })
+
+app.get('/profile/edit_b/:id', async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    // Perform the Firestore query asynchronously to get the business data based on userId
+    const businessQuerySnapshot = await db.collection("businesses").where("uid", "==", userId).get();
+    
+    // If the query is successful and returns data
+    if (!businessQuerySnapshot.empty) {
+      // Assume there's only one document that matches the uid, get the first document's data
+      const businessData = businessQuerySnapshot.docs[0].data();
+
+      // Return the data as an object to the client or render the page
+      res.render("edit_bprofile.ejs",{businessData});  // For example, sending the business data as a JSON response
+    } 
+  } catch (error) {
+    console.error('Error fetching business data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post("/profile/edit_b/:id", async (req, res) => {
+  const userId = req.params.id; // Extract userId from route parameters
+  const { businessName, ownerName, address, phone, rent, description } = req.body;
+
+  try {
+    // Query the businesses collection to find the document with the matching userId
+    const querySnapshot = await db.collection("businesses").where("uid", "==", userId).get();
+
+    if (!querySnapshot.empty) {
+      // Assuming userId is unique, get the first document
+      const doc = querySnapshot.docs[0];
+
+      // Update the document with the new data
+      await db.collection("businesses").doc(doc.id).update({
+        businessName,
+        ownerName,
+        address,
+        phone,
+        rent,
+        description,
+      });
+   req.flash("success","Profile Updated Successfully!")
+      res.redirect("/profile"); // Redirect to the profile page after updating
+    } 
+  } catch (error) {
+    console.error("Error updating business profile:", error);
+    req.flash("error",`${error.message}`);
+    res.redirect(`/profile/edit_b/${userId}`);
+  }
+});
+
+

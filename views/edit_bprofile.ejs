@@ -1,0 +1,97 @@
+<% layout("/layouts/boilerplate.ejs") %>
+  <style>
+    .form-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+  <div class="container">
+    <div class="form-container">
+      <h2>Edit Business Profile</h2>
+      <form action="/profile/edit_b/<%= businessData.uid %>" method="POST">
+        <!-- Business Name -->
+        <div class="mb-3">
+          <label for="businessName" class="form-label"><i class="fas fa-briefcase"></i> Business Name</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="businessName" 
+            name="businessName" 
+            value="<%= businessData.businessName %>" 
+            required>
+        </div>
+
+        <!-- Owner Name -->
+        <div class="mb-3">
+          <label for="ownerName" class="form-label"><i class="fas fa-user"></i> Owner Name</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="ownerName" 
+            name="ownerName" 
+            value="<%= businessData.ownerName %>" 
+            required>
+        </div>
+
+        <!-- Address -->
+        <div class="mb-3">
+          <label for="address" class="form-label"><i class="fas fa-map-marker-alt"></i> Address</label>
+          <textarea 
+            class="form-control" 
+            id="address" 
+            name="address" 
+            rows="2" 
+            required><%= businessData.address %></textarea>
+        </div>
+
+        <!-- Phone -->
+        <div class="mb-3">
+          <label for="phone" class="form-label"><i class="fas fa-phone"></i> Phone Number</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="phone" 
+            name="phone" 
+            value="<%= businessData.phone %>" 
+            required>
+        </div>
+
+        <!-- Rent -->
+        <div class="mb-3">
+          <label for="rent" class="form-label"><i class="fas fa-money-bill-wave"></i> Rent</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="rent" 
+            name="rent" 
+            value="<%= businessData.rent %>" 
+            required>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label for="description" class="form-label"><i class="fas fa-info-circle"></i> Description</label>
+          <textarea 
+            class="form-control" 
+            id="description" 
+            name="description" 
+            rows="3" 
+            required><%= businessData.description %></textarea>
+        </div>
+
+        
+        <!-- Submit Button -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
