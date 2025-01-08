@@ -30,7 +30,8 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(flash());
 
-// --------------------------------------flash msg-----------------------------------------------
+// ----------flash msg storing in the locals-------------------------------
+
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
@@ -42,12 +43,13 @@ app.use((req, res, next) => {
   next();
 })
 
-
+// Ejs mate used for templating
 const ejsMate = require("ejs-mate");
 app.engine("ejs", ejsMate);
+
 app.listen(PORT, () => console.log(`App is listing on the Port: ${PORT}`));
 
-//firebase setup
+//------firebase setup----------
 
 const admin = require('firebase-admin');
 
@@ -72,8 +74,46 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
+//Home route
 app.get("/",(req,res)=>{
    res.render("home.ejs");
    console.log("home page");
-   
+
 })
+
+// Authentication 
+const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require("firebase/auth");
+
+app.get("/signup/business",(rea,res)=>{
+  res.render("signupBusiness.ejs");
+  console.log("Signup form send for business");
+})
+
+app.post("/signup/business", async (req, res) => {
+  try {
+    // Extract fields from req.body
+    const { businessName, ownerName, address, phone, rent,email,description,} =req.body;
+    console.log(req.body);
+
+    // Save business details to Firestore
+    await db.collection("businesses").add({
+      businessName,
+      ownerName,
+      address,
+      phone,
+      rent,
+      email,  
+      description, 
+      // Save the photo URL
+      createdAt: new Date(),
+    });
+
+    req.flash("success", "Business registered successfully. Log in now!");
+    res.redirect("/");
+  } catch (error) {
+    console.error("Error while registering business:", error);
+    req.flash("error", `Error while registering business: ${error.message}`);
+    res.redirect("/signup/business");
+  }
+});
+

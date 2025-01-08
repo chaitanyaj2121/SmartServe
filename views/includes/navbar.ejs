@@ -35,12 +35,32 @@
         <!-- Right-Side Navigation -->
         <div class="navbar-nav ms-auto">
           <% if (!currUser) { %>
-            <a class="nav-link" href="/signup">
-              <i class="fa-solid fa-user-plus"></i> Sign Up
-            </a>
+            <div class="nav-item dropdown">
+              <a 
+                class="nav-link dropdown-toggle" 
+                href="#" 
+                id="signupDropdown" 
+                role="button" 
+                data-bs-toggle="dropdown" 
+                aria-expanded="false">
+                <i class="fa-solid fa-user-plus"></i> Sign Up
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="signupDropdown">
+                <li>
+                  <a class="dropdown-item" href="/signup/user">
+                    <i class="fa-solid fa-user"></i> as User
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/signup/business">
+                    <i class="fa-solid fa-briefcase"></i> as Business
+                  </a>
+                </li>
+              </ul>
+            </div>
             <a class="nav-link" href="/login">
               <i class="fa-solid fa-right-to-bracket"></i> Log in
-            </a>
+            </a>            
           <% } %>
           <% if (currUser) { %>
             <a class="nav-link" href="/profile">
@@ -55,3 +75,17 @@
     </div>
   </nav>
   
+  <script>
+    document.querySelectorAll('.dropdown').forEach(function (dropdown) {
+  dropdown.addEventListener('mouseenter', function () {
+    const dropdownMenu = this.querySelector('.dropdown-menu');
+    dropdownMenu.classList.add('show');
+  });
+
+  dropdown.addEventListener('mouseleave', function () {
+    const dropdownMenu = this.querySelector('.dropdown-menu');
+    dropdownMenu.classList.remove('show');
+  });
+});
+
+  </script>
