@@ -83,7 +83,7 @@ app.get("/",(req,res)=>{
 
 // Authentication 
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require("firebase/auth");
-
+const { auth } = require("./firebase-config");
 app.get("/signup/business",(rea,res)=>{
   res.render("signupBusiness.ejs");
   console.log("Signup form send for business");
@@ -92,18 +92,24 @@ app.get("/signup/business",(rea,res)=>{
 app.post("/signup/business", async (req, res) => {
   try {
     // Extract fields from req.body
-    const { businessName, ownerName, address, phone, rent,email,description,} =req.body;
-    console.log(req.body);
+    const { businessName, ownerName, address, phone, rent,email,description,password} =req.body;
+    // console.log(req.body);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // console.log("These are user Credentials: " + JSON.stringify(userCredential));
+    // console.log(userCredential.user.uid);
+    const uid=userCredential.user.uid;
+    
 
+     
     // Save business details to Firestore
     await db.collection("businesses").add({
       businessName,
       ownerName,
       address,
       phone,
-      rent,
-      email,  
+      rent, 
       description, 
+      uid,
       // Save the photo URL
       createdAt: new Date(),
     });
