@@ -78,10 +78,14 @@ app.get("/", (req, res) => {
   console.log("home page");
 
 })
+app.get("/check",(req,res)=>{
+  res.render("signupCustomers.ejs");
+})
 
 // Authentication 
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require("firebase/auth");
 const { auth } = require("./firebase-config");
+
 app.get("/signup/business", (rea, res) => {
   res.render("signupBusiness.ejs");
   console.log("Signup form send for business");
@@ -185,7 +189,7 @@ app.get("/profile",async (req,res) => {
     console.log("Data found in customers:", customerData);
 
     // Render profileBusiness.ejs with customer data
-    return res.render("profileCustomer.ejs", { data: customerData });
+    return res.render("profileCustomer.ejs", { data: customerData[0] });
   }
 
   // If no data found, render with an empty state or handle accordingly
@@ -250,4 +254,66 @@ app.post("/profile/edit_b/:id", async (req, res) => {
   }
 });
 
+app.get("/signup/user",(req,res)=>{
+  res.render("signupCustomers.ejs");
+})
 
+app.post("/signup/user",async (req,res) => {
+  const { fullName, mobile, email, password, } = req.body;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const uid = userCredential.user.uid;
+    await db.collection("customers").add({
+      fullName,
+      mobile,
+      uid,
+      createdAt: new Date(),
+    });
+    req.flash("success","Signup Success login now!");
+    res.redirect("/login");
+  }
+    catch(error){
+      console.log(error);
+      
+      req.flash("error",`${error.message}`);
+      res.redirect("/signup/user");
+    }
+})
+
+app.get("/customers", async (req, res) => {
+  const messId = req.session.uid; // Assuming `messId` is stored in the session
+  let customers = [];
+
+  try {
+    // Fetch customers whose `messId` matches the owner's `messId`
+    const customersSnapshot = await db.collection("customers").where("messId", "==", messId).get();
+
+    if (!customersSnapshot.empty) {
+      customers = customersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    res.render("customers.ejs", { customers });
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    res.status(500).send("Error fetching customers.");
+  }
+});
+
+
+app.post("/customers/add", async (req, res) => {
+  const { name, mobile, start_date } = req.body;
+  const messId=req.session.uid;  
+  try {
+    await db.collection("customers").add({
+      name,
+      mobile: mobile || null, // Allow null if no mobile is provided
+      start_date: new Date(start_date),
+      messId,
+      createdAt: new Date(),
+    });
+    req.flash("success","Customer Addmited Successfully!!");
+    res.redirect("/customers");
+  } catch (error) {
+    req.flash("error",`${error.message}`)
+res.redirect("/customers");
+  }
+});

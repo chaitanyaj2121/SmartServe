@@ -1,0 +1,97 @@
+<% layout("/layouts/boilerplate.ejs") %>
+  <style>
+  
+    .container {
+      margin-top: 30px;
+    }
+    .table-container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .add-customer-btn {
+      margin-bottom: 20px;
+    }
+    .form-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+  <div class="container">
+    <h1 class="text-center mb-4">Manage Customers</h1>
+    <div class="container mt-5">
+           <!-- Add Customer Button -->
+    <div class="text-end">
+        <button class="btn btn-primary add-customer-btn" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+          <i class="fas fa-user-plus"></i> Add Customer
+        </button>
+      </div>
+  
+      <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content form-container">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addCustomerModalLabel">Add New Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form action="/customers/add" method="POST">
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Customer Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="mobile" class="form-label">Mobile</label>
+                    <input type="tel" class="form-control" id="mobile" name="mobile">
+                  </div>
+                  <div class="mb-3">
+                    <label for="start_date" class="form-label">Starting Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Add Customer</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <table class="table table-striped mt-4">
+
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Mobile</th>
+              <th>Starting Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (customers.length > 0) { %>
+              <% customers.forEach((customer, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= customer.name %></td>
+                  <td><%= customer.mobile || "N/A" %></td>
+                  <td><%= customer.start_date.toDate().toLocaleDateString() %></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="4" class="text-center">No customers found.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      
+
+ 
+      
+
+
+
+
