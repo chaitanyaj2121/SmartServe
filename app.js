@@ -35,11 +35,9 @@ app.use(flash());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.currUser = req.session.user;
 
-  // we are using this in navbar.ejs you can see that
-  res.locals.currUser = req.user;
-      //  console.log(req.user);
-       
+
   next();
 })
 
@@ -62,7 +60,7 @@ admin.initializeApp({
 const db = admin.firestore();
 const storage = admin.storage();
 
- 
+
 const path = require("path");
 const { log } = require('console');
 
@@ -75,16 +73,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 //Home route
-app.get("/",(req,res)=>{
-   res.render("home.ejs");
-   console.log("home page");
+app.get("/", (req, res) => {
+  res.render("home.ejs");
+  console.log("home page");
 
 })
 
 // Authentication 
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require("firebase/auth");
 const { auth } = require("./firebase-config");
-app.get("/signup/business",(rea,res)=>{
+app.get("/signup/business", (rea, res) => {
   res.render("signupBusiness.ejs");
   console.log("Signup form send for business");
 })
@@ -92,23 +90,23 @@ app.get("/signup/business",(rea,res)=>{
 app.post("/signup/business", async (req, res) => {
   try {
     // Extract fields from req.body
-    const { businessName, ownerName, address, phone, rent,email,description,password} =req.body;
+    const { businessName, ownerName, address, phone, rent, email, description, password } = req.body;
     // console.log(req.body);
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     // console.log("These are user Credentials: " + JSON.stringify(userCredential));
     // console.log(userCredential.user.uid);
-    const uid=userCredential.user.uid;
-    
+    const uid = userCredential.user.uid;
 
-     
+
+
     // Save business details to Firestore
     await db.collection("businesses").add({
       businessName,
       ownerName,
       address,
       phone,
-      rent, 
-      description, 
+      rent,
+      description,
       uid,
       // Save the photo URL
       createdAt: new Date(),
@@ -123,3 +121,79 @@ app.post("/signup/business", async (req, res) => {
   }
 });
 
+app.get("/login", (req, res) => {
+  res.render("login.ejs");
+})
+
+app.post("/login", async (req, res) => {
+
+  const { email, password } = req.body;
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    req.session.user = userCredential.user;
+    req.session.uid=userCredential.user.uid;
+    console.log(req.session.uid);
+    
+    
+    req.flash("success", "Login Success!");
+    res.redirect("/");
+  } catch (error) {
+    console.error("Error logging in:", error.message);
+    req.flash("error", `${error.message}`);
+    res.redirect("/login");
+  }
+
+})
+
+app.get("/logout", async (req, res) => {
+  try {
+    await signOut(auth); // Sign out using Firebase Auth
+    console.log("User logged out");
+    req.session.user = null;
+    req.session.uid=null;
+    req.flash("success", "Logout Success!");
+    res.redirect("/");
+  } catch (error) {
+    console.error("Error logging out:", error.message);
+    req.flash("error", `${error.message}`);
+    res.redirect("/");
+  }
+})
+
+
+app.get("/profile",async (req,res) => {
+ const uid=req.session.uid;  
+
+ try {
+  const businessQuery = db.collection("businesses").where("uid", "==", uid).get();
+  const customerQuery = db.collection("customers").where("uid", "==", uid).get();
+
+  const [businessSnap, customerSnap] = await Promise.all([businessQuery, customerQuery]);
+
+  if (!businessSnap.empty) {
+    // Extract business data
+    const businessData = businessSnap.docs.map(doc => doc.data());
+    console.log("Data found in businesses:", businessData);
+
+    // Render profileBusiness.ejs with business data
+    return res.render("profileBusiness.ejs", { data: businessData[0] });
+  }
+
+  if (!customerSnap.empty) {
+    // Extract customer data
+    const customerData = customerSnap.docs.map(doc => doc.data());
+    console.log("Data found in customers:", customerData);
+
+    // Render profileBusiness.ejs with customer data
+    return res.render("profileCustomer.ejs", { data: customerData });
+  }
+
+  // If no data found, render with an empty state or handle accordingly
+  res.render("profileBusiness.ejs", { data: null });
+} 
+catch(error){
+  console.error("Error while loading profile:", error.message);
+    req.flash("error", `${error.message}`);
+    res.redirect("/");
+}
+})
