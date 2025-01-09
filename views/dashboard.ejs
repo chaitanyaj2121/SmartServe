@@ -1,0 +1,83 @@
+
+<% layout("/layouts/boilerplate.ejs") %>
+<style>
+    .customer-card {
+  background-color: #f9f9f9;
+  transition: transform 0.2s ease-in-out;
+}
+.customer-card:hover {
+  transform: scale(1.02);
+  border-color: #007bff;
+}
+.customer-index .badge {
+  font-size: 1.2rem;
+}
+.no-customers i {
+  color: #ccc;
+}
+
+</style>
+<div class="customer-list container mt-4">
+    <h2 class="text-center mb-4">Customer List</h2>
+  
+    <% if (customers.length > 0) { %>
+      <% customers.forEach((customer, index) => { %>
+        <% 
+          const startDate = customer.start_date.toDate();
+          const formattedStartDate = startDate.toLocaleDateString("en-GB"); // Format as day/month/year
+  
+          const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // Add 30 days
+          const formattedEndDate = endDate.toLocaleDateString("en-GB");
+  
+          const currentDate = new Date();
+          const isEnded = currentDate > endDate; // Check if the mess has ended
+          const remainingDays = Math.ceil((endDate.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000));
+          const daysLeftText = remainingDays > 0 
+            ? `${remainingDays} days remaining` 
+            : `Your mess ended on ${formattedEndDate}`;
+        %>
+        <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex justify-content-between align-items-center" style="border: 1px solid #ddd;">
+          <div class="customer-details">
+            <p class="mb-1">
+              <span class="fw-bold me-2">
+                <i class="bi bi-person-circle"></i> Name:
+              </span> 
+              <%= customer.name %>
+            </p>
+            <p class="mb-1">
+              <span class="fw-bold me-2">
+                <i class="bi bi-telephone-fill"></i> Mobile:
+              </span> 
+              <%= customer.mobile || "N/A" %>
+            </p>
+            <p class="mb-0">
+              <span class="fw-bold me-2">
+                <i class="bi bi-calendar-date"></i> Starting Date:
+              </span> 
+              <%= formattedStartDate %>
+            </p>
+            <% if (!isEnded) { %>
+              <p class="mt-1 text-success fw-bold">
+                <i class="bi bi-clock"></i> <%= daysLeftText %>
+              </p>
+            <% } else { %>
+              <p class="mt-1 text-danger fw-bold">
+                <i class="bi bi-exclamation-triangle"></i> <%= daysLeftText %>
+              </p>
+            <% } %>
+          </div>
+          <div class="customer-index">
+            <span class="badge bg-primary fs-5">
+              #<%= index + 1 %>
+            </span>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="no-customers text-center p-4 rounded bg-light">
+        <i class="bi bi-people fs-1 text-muted"></i>
+        <p class="mt-3 text-muted">No customers found.</p>
+      </div>
+    <% } %>
+  </div>
+  

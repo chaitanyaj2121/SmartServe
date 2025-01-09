@@ -317,3 +317,21 @@ app.post("/customers/add", async (req, res) => {
 res.redirect("/customers");
   }
 });
+
+app.get("/dashboard", async (req, res) => {
+  const messId = req.session.uid; // Assuming `messId` is stored in the session
+  let customers = [];
+
+  try {
+    // Fetch customers whose `messId` matches the owner's `messId`
+    const customersSnapshot = await db.collection("customers").where("messId", "==", messId).get();
+
+    if (!customersSnapshot.empty) {
+      customers = customersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    res.render("dashboard.ejs", { customers });
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    res.status(500).send("Error fetching customers.");
+  }
+});
