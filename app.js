@@ -300,7 +300,7 @@ app.get("/customers", async (req, res) => {
 
 
 app.post("/customers/add", async (req, res) => {
-  const { name, mobile, start_date } = req.body;
+  const { name, mobile, start_date, feesPaid} = req.body;
   const messId=req.session.uid;  
   try {
     await db.collection("customers").add({
@@ -308,6 +308,7 @@ app.post("/customers/add", async (req, res) => {
       mobile: mobile || null, // Allow null if no mobile is provided
       start_date: new Date(start_date),
       messId,
+      feesPaid,
       createdAt: new Date(),
     });
     req.flash("success","Customer Addmited Successfully!!");
@@ -315,6 +316,45 @@ app.post("/customers/add", async (req, res) => {
   } catch (error) {
     req.flash("error",`${error.message}`)
 res.redirect("/customers");
+  }
+});
+
+app.post("/customers/update/:id", async (req, res) => {
+  try {
+    const custId = req.params.id;
+    const { name, mobile, start_date, feesPaid, suttya } = req.body;
+
+    const customerRef = db.collection("customers").doc(custId);
+
+    // Fetch the existing customer document
+    const customerSnapshot = await customerRef.get();
+
+    // Get the existing customer data
+    const customerData = customerSnapshot.data();
+
+    let updatedStartDate = customerData.start_date.toDate();
+
+    // Extend the date if `suttya` is provided
+    if (suttya) {
+      const daysToExtend = parseInt(req.body.suttya, 10) || 0;
+      updatedStartDate.setDate(updatedStartDate.getDate() + daysToExtend); // Extend the date
+    }
+    
+    // Prepare the updated fields
+    const updatedData = {
+      name: name || customerData.name,
+      mobile: mobile || customerData.mobile,
+      start_date: updatedStartDate, // Store the updated Date object
+      feesPaid: feesPaid || customerData.feesPaid,
+    };
+    
+    // Update the document in Firestore
+    await customerRef.update(updatedData);
+    req.flash("success","Updation Success!");
+    res.redirect("/dashboard");
+  } catch (error) {
+    req.flash("error",`${error.message}`)
+    res.redirect("/dashboard");
   }
 });
 

@@ -24,41 +24,46 @@
     <h1 class="text-center mb-4">Manage Customers</h1>
     <div class="container mt-5">
            <!-- Add Customer Button -->
-    <div class="text-end">
-        <button class="btn btn-primary add-customer-btn" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
-          <i class="fas fa-user-plus"></i> Add Customer
-        </button>
-      </div>
-  
-      <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content form-container">
-              <div class="modal-header">
-                <h5 class="modal-title" id="addCustomerModalLabel">Add New Customer</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           <div class="text-end">
+            <button class="btn btn-primary add-customer-btn" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+              <i class="fas fa-user-plus"></i> Add Customer
+            </button>
+          </div>
+          
+          <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content form-container">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addCustomerModalLabel">Add New Customer</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/customers/add" method="POST">
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="name" class="form-label">Customer Name</label>
+                      <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="mobile" class="form-label">Mobile</label>
+                      <input type="tel" class="form-control" id="mobile" name="mobile">
+                    </div>
+                    <div class="mb-3">
+                      <label for="start_date" class="form-label">Starting Date</label>
+                      <input type="date" class="form-control" id="start_date" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="fees_paid" class="form-label">Fees Paid</label>
+                      <input type="number" class="form-control" id="feesPaid" name="feesPaid" placeholder="Enter amount">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                  </div>
+                </form>
               </div>
-              <form action="/customers/add" method="POST">
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label for="name" class="form-label">Customer Name</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="mobile" class="form-label">Mobile</label>
-                    <input type="tel" class="form-control" id="mobile" name="mobile">
-                  </div>
-                  <div class="mb-3">
-                    <label for="start_date" class="form-label">Starting Date</label>
-                    <input type="date" class="form-control" id="start_date" name="start_date" required>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-primary">Add Customer</button>
-                </div>
-              </form>
             </div>
           </div>
-        </div>
+          
         <table class="table table-striped mt-4">
 
           <thead>
@@ -66,7 +71,10 @@
               <th>#</th>
               <th>Name</th>
               <th>Mobile</th>
+              <th>Fees Paid Rs</th>
+              <th>Reamining Fees</th>
               <th>Starting Date</th>
+    
             </tr>
           </thead>
           <tbody>
@@ -76,6 +84,8 @@
                   <td><%= index + 1 %></td>
                   <td><%= customer.name %></td>
                   <td><%= customer.mobile || "N/A" %></td>
+                  <td><%= customer.feesPaid %></td>
+                  <td><%=2300-customer.feesPaid  %></td>
                   <td><%= customer.start_date.toDate().toLocaleDateString() %></td>
                 </tr>
               <% }) %>
