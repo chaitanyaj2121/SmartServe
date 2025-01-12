@@ -60,8 +60,19 @@
           ? `${remainingDays} days remaining` 
           : `Your mess ended on ${formattedEndDate}`;
       %>
-      <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex justify-content-between align-items-center" style="border: 1px solid #ddd;">
-        <div class="customer-details">
+      <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex flex-wrap align-items-center" style="border: 1px solid #ddd;">
+        <!-- Customer Image -->
+        <div class="customer-image me-3 mb-3" style="flex: 0 0 100px; height: 100px; overflow: hidden; border-radius: 50%;">
+          <img 
+            src="<%= customer.customerImage.url %>" 
+            alt="Customer Image" 
+            class="img-fluid w-100 h-100 object-fit-cover" 
+            style="border-radius: 50%;"
+          />
+        </div>
+      
+        <!-- Customer Details -->
+        <div class="customer-details" style="flex: 1;">
           <p class="mb-1">
             <span class="fw-bold me-2">
               <i class="bi bi-person-circle"></i> Name:
@@ -70,13 +81,13 @@
           </p>
           <p class="mb-1">
             <span class="fw-bold me-2">
-              <i class="bi bi-person-circle"></i> Fees Paid:
+              <i class="bi bi-currency-rupee"></i> Fees Paid:
             </span> 
             <%= customer.feesPaid %>
           </p>
           <p class="mb-1">
             <span class="fw-bold me-2">
-              <i class="bi bi-person-circle"></i> Fees Remaining:
+              <i class="bi bi-currency-rupee"></i> Fees Remaining:
             </span> 
             <%= 2300 - customer.feesPaid %>
           </p>
@@ -102,6 +113,8 @@
             </p>
           <% } %>
         </div>
+      </div>
+      
         
         <div class="customer-index">
             <span style="cursor: pointer; margin-bottom: 1rem;" class="badge bg-primary fs-5" data-bs-toggle="modal" data-bs-target="#addCustomerModal-<%= customer.id %>">
