@@ -1,91 +1,90 @@
 <nav class="navbar navbar-expand-md bg-body-light sticky-top shadow-sm">
-    <div class="container-fluid">
-      <!-- Logo and Title -->
-      <a class="navbar-brand d-flex align-items-center" href="/">
-        <i class="fa-solid fa-utensils"></i>
-        <span class="ms-2 fw-bold">SmartServe</span>
-      </a>
-  
-      <!-- Toggle Button for Mobile View -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-  
-      <!-- Navbar Links -->
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-          <a class="nav-link" href="/">
-            <i class="fa-solid fa-house"></i> Home
-          </a>
+  <div class="container-fluid">
+    <!-- Logo and Title -->
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <i class="fa-solid fa-utensils"></i>
+      <span class="ms-2 fw-bold">SmartServe</span>
+    </a>
+
+    <!-- Toggle Button for Mobile View -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar Links -->
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="nav-link" href="/">
+          <i class="fa-solid fa-house"></i> Home
+        </a>
+        <% if (ismess) { %>
           <a class="nav-link" href="/dashboard">
             <i class="fa-solid fa-chart-line"></i> Dashboard
           </a>
           <a class="nav-link" href="/customers">
             <i class="fa-solid fa-users"></i> Manage Customers
           </a>
-          <a class="nav-link" href="/attendance">
-            <i class="fa-solid fa-calendar-check"></i> Attendance
-          </a>
           <a class="nav-link" href="/notifications">
             <i class="fa-solid fa-bell"></i> Notifications
           </a>
-        </div>
-  
-        <!-- Right-Side Navigation -->
-        <div class="navbar-nav ms-auto">
-          <% if (!currUser) { %>
-            <div class="nav-item dropdown">
-              <a 
-                class="nav-link dropdown-toggle" 
-                href="#" 
-                id="signupDropdown" 
-                role="button" 
-                data-bs-toggle="dropdown" 
-                aria-expanded="false">
-                <i class="fa-solid fa-user-plus"></i> Sign Up
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="signupDropdown">
-                <li>
-                  <a class="dropdown-item" href="/signup/user">
-                    <i class="fa-solid fa-user"></i> as User
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="/signup/business">
-                    <i class="fa-solid fa-briefcase"></i> as Business
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <a class="nav-link" href="/login">
-              <i class="fa-solid fa-right-to-bracket"></i> Log in
-            </a>            
-          <% } %>
-          <% if (currUser) { %>
-            <a class="nav-link" href="/profile">
-              <i class="fa-solid fa-user"></i> Profile
-            </a>
-            <a class="nav-link" href="/logout">
-              <i class="fa-solid fa-right-from-bracket"></i> Log out
-            </a>
-          <% } %>
-        </div>
       </div>
+      <% } %>
+        <% if (iscustomer) { %>
+          <a class="nav-link" href="/nearby">
+            <i class="fa-solid fa-bell"></i> Near By SmartServe
+          </a>
+          <% } %>
+            <!-- Right-Side Navigation -->
+            <!-- Right-Side Navigation -->
+            <div class="navbar-nav ms-auto">
+              <% if (!currUser) { %>
+                <div class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="signupDropdown" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-user-plus"></i> Sign Up
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="signupDropdown">
+                    <li>
+                      <a class="dropdown-item" href="/signup/user">
+                        <i class="fa-solid fa-user"></i> as User
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="/signup/business">
+                        <i class="fa-solid fa-briefcase"></i> as Business
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <a class="nav-link" href="/login">
+                  <i class="fa-solid fa-right-to-bracket"></i> Log in
+                </a>
+                <% } else { %>
+                  <a class="nav-link" href="/profile">
+                    <i class="fa-solid fa-user"></i> Profile
+                  </a>
+                  <a class="nav-link" href="/logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Log out
+                  </a>
+                  <% } %>
+            </div>
+
     </div>
-  </nav>
-  
-  <script>
-    document.querySelectorAll('.dropdown').forEach(function (dropdown) {
-  dropdown.addEventListener('mouseenter', function () {
-    const dropdownMenu = this.querySelector('.dropdown-menu');
-    dropdownMenu.classList.add('show');
+  </div>
+</nav>
+
+<script>
+  document.querySelectorAll('.dropdown').forEach(function (dropdown) {
+    dropdown.addEventListener('mouseenter', function () {
+      const dropdownMenu = this.querySelector('.dropdown-menu');
+      dropdownMenu.classList.add('show');
+    });
+
+    dropdown.addEventListener('mouseleave', function () {
+      const dropdownMenu = this.querySelector('.dropdown-menu');
+      dropdownMenu.classList.remove('show');
+    });
   });
 
-  dropdown.addEventListener('mouseleave', function () {
-    const dropdownMenu = this.querySelector('.dropdown-menu');
-    dropdownMenu.classList.remove('show');
-  });
-});
-
-  </script>
+</script>

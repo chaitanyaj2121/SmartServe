@@ -1,4 +1,45 @@
 <% layout("/layouts/boilerplate.ejs") %>
+
+<style>
+/* Ensure the modal dialog is vertically and horizontally centered */
+.modal-dialog {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Full viewport height */
+  margin: 0 auto; /* Center the modal horizontally */
+}
+
+/* Adjust modal content for responsiveness */
+.modal-content {
+  width: 100%;
+  max-width: 500px; /* Limit the max width */
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  background-color: #fff;
+}
+
+/* Fix for smaller screens */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%; /* Ensure it fits well on mobile devices */
+  }
+}
+
+/* Optional: Add a smooth fade-in effect */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  transform: translateY(-50px);
+  opacity: 0;
+}
+
+.modal.show .modal-dialog {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+</style>
 <div class="customer-list container mt-4">
   <h2 class="text-center mb-4">Customer List</h2>
 
@@ -63,7 +104,7 @@
         </div>
         
         <div class="customer-index">
-            <span style="cursor: pointer;" class="badge bg-primary fs-5" data-bs-toggle="modal" data-bs-target="#addCustomerModal-<%= customer.id %>">
+            <span style="cursor: pointer; margin-bottom: 1rem;" class="badge bg-primary fs-5" data-bs-toggle="modal" data-bs-target="#addCustomerModal-<%= customer.id %>">
              Manage
             </span>
           <span class="badge bg-primary fs-5">

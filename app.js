@@ -36,8 +36,8 @@ app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   res.locals.currUser = req.session.user;
-
-
+  res.locals.iscustomer= req.session.iscustomer || false;
+  res.locals.ismess=req.session.ismess || false; 
   next();
 })
 
@@ -85,6 +85,7 @@ app.get("/check",(req,res)=>{
 // Authentication 
 const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require("firebase/auth");
 const { auth } = require("./firebase-config");
+const { isLoggedIn, ismess } = require('./middlewares');
 
 app.get("/signup/business", (rea, res) => {
   res.render("signupBusiness.ejs");
@@ -136,9 +137,18 @@ app.post("/login", async (req, res) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     req.session.user = userCredential.user;
     req.session.uid=userCredential.user.uid;
-    console.log(req.session.uid);
-    
-    
+    const uid=userCredential.user.uid;
+
+    const businessQuery = db.collection("businesses").where("uid", "==", uid).get();
+  const customerQuery = db.collection("customers").where("uid", "==", uid).get();
+
+  const [businessSnap, customerSnap] = await Promise.all([businessQuery, customerQuery]);
+  if(!businessSnap.empty){
+    req.session.ismess=true;
+  }
+  if(!customerSnap.empty){
+    req.session.iscustomer=true;
+  }
     req.flash("success", "Login Success!");
     res.redirect("/");
   } catch (error) {
@@ -155,6 +165,8 @@ app.get("/logout", async (req, res) => {
     console.log("User logged out");
     req.session.user = null;
     req.session.uid=null;
+    req.session.iscustomer=null;
+    req.session.ismess =null; 
     req.flash("success", "Logout Success!");
     res.redirect("/");
   } catch (error) {
@@ -165,7 +177,7 @@ app.get("/logout", async (req, res) => {
 })
 
 
-app.get("/profile",async (req,res) => {
+app.get("/profile",isLoggedIn, async (req,res) => {
  const uid=req.session.uid;  
 
  try {
@@ -202,7 +214,7 @@ catch(error){
 }
 })
 
-app.get('/profile/edit_b/:id', async (req, res) => {
+app.get('/profile/edit_b/:id', isLoggedIn,ismess, async (req, res) => {
   const userId = req.params.id;
 
   try {
@@ -223,7 +235,7 @@ app.get('/profile/edit_b/:id', async (req, res) => {
   }
 });
 
-app.post("/profile/edit_b/:id", async (req, res) => {
+app.post("/profile/edit_b/:id",isLoggedIn,ismess, async (req, res) => {
   const userId = req.params.id; // Extract userId from route parameters
   const { businessName, ownerName, address, phone, rent, description } = req.body;
 
@@ -280,7 +292,7 @@ app.post("/signup/user",async (req,res) => {
     }
 })
 
-app.get("/customers", async (req, res) => {
+app.get("/customers",isLoggedIn,ismess,async (req, res) => {
   const messId = req.session.uid; // Assuming `messId` is stored in the session
   let customers = [];
 
@@ -299,7 +311,7 @@ app.get("/customers", async (req, res) => {
 });
 
 
-app.post("/customers/add", async (req, res) => {
+app.post("/customers/add",isLoggedIn,ismess, async (req, res) => {
   const { name, mobile, start_date, feesPaid} = req.body;
   const messId=req.session.uid;  
   try {
@@ -319,7 +331,7 @@ res.redirect("/customers");
   }
 });
 
-app.post("/customers/update/:id", async (req, res) => {
+app.post("/customers/update/:id",isLoggedIn,ismess, async (req, res) => {
   try {
     const custId = req.params.id;
     const { name, mobile, start_date, feesPaid, suttya } = req.body;
@@ -358,8 +370,8 @@ app.post("/customers/update/:id", async (req, res) => {
   }
 });
 
-app.get("/dashboard", async (req, res) => {
-  const messId = req.session.uid; // Assuming `messId` is stored in the session
+app.get("/dashboard",isLoggedIn,ismess, async (req, res) => {
+  const messId = req.session.uid; 
   let customers = [];
 
   try {
