@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 3030;
+const PORT = 3000;
 
 
 app.use(express.json());
@@ -385,5 +385,32 @@ app.get("/dashboard",isLoggedIn,ismess, async (req, res) => {
   } catch (error) {
     console.error("Error fetching customers:", error);
     res.status(500).send("Error fetching customers.");
+  }
+});
+
+app.get("/nearby",isLoggedIn, async (req, res) => {
+  try {
+    // Fetch all documents from the 'businesses' collection
+    const businessesSnapshot = await db.collection("businesses").get();
+
+    // Check if there are any documents
+    if (businessesSnapshot.empty) {
+      req.flash("error", "No businesses found!");
+      return res.render("nearby", { businesses: [] }); // Render nearby page with an empty list
+    }
+
+    // Map the documents into an array of business objects
+    const businesses = businessesSnapshot.docs.map(doc => ({
+      id: doc.id, // Document ID
+      ...doc.data() // Spread the document data
+    }));
+
+    // Render a page to show the list of businesses
+    res.render("nearby", { businesses });
+
+  } catch (error) {
+    console.error("Error fetching businesses:", error);
+    req.flash("error", `Error fetching businesses: ${error.message}`);
+    res.redirect("/");
   }
 });

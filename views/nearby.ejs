@@ -1,0 +1,56 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container mt-5">
+  <h1 class="text-center mb-4 text-primary">Nearby Messes and Smart Servicing Centers</h1>
+  
+  <% if (businesses.length > 0) { %>
+    <div class="row">
+      <% businesses.forEach(business => { %>
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm border-0">
+            <div class="card-header text-white bg-primary">
+              <h5 class="mb-0 text-center"><i class="fa-solid fa-utensils"></i> <%= business.businessName %></h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                <i class="fa-solid fa-user"></i> <strong>Owner:</strong> <%= business.ownerName %> <br>
+                <i class="fa-solid fa-location-dot"></i> <strong>Address:</strong> <%= business.address %> <br>
+                <i class="fa-solid fa-phone"></i> <strong>Phone:</strong> <%= business.phone %> <br>
+                <i class="fa-solid fa-wallet"></i> <strong>Rent:</strong> ₹<%= business.rent %>
+              </p>
+            </div>
+            <div class="card-footer text-center">
+              <button class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-info-circle"></i> View Details</button>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="text-center">
+      <i class="fa-solid fa-circle-exclamation fa-3x text-muted"></i>
+      <p class="text-muted mt-3">No businesses registered yet!</p>
+    </div>
+  <% } %>
+</div>
+
+<style>
+  /* Custom CSS */
+  .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  }
+  .card-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  .btn-outline-primary {
+    border-radius: 20px;
+  }
+  .fa-circle-exclamation {
+    opacity: 0.6;
+  }
+</style>
