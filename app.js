@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-const { storage } = require("./cloudConfig");
+const { storage ,cloudinary} = require("./cloudConfig");
 //multer used for the parsing the data from the file
 const multer = require('multer')
 const upload = multer({ storage })
@@ -35,16 +35,7 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(flash());
 
-// ----------flash msg storing in the locals-------------------------------
 
-app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  res.locals.currUser = req.session.user;
-  res.locals.iscustomer = req.session.iscustomer || false;
-  res.locals.ismess = req.session.ismess || false;
-  next();
-})
 
 // Ejs mate used for templating
 const ejsMate = require("ejs-mate");
@@ -76,6 +67,22 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
+// ----------flash msg storing in the locals-------------------------------
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.session.user;
+  res.locals.iscustomer = req.session.iscustomer || false;
+  res.locals.ismess = req.session.ismess || false;
+  res.locals.messFees = req.session.fees;
+   // Set the redirect URL if it exists in query parameters
+   if (req.query.redirectUrl) {
+    res.locals.redirectUrl = req.query.redirectUrl;
+  }
+
+  next();
+})
 //Home route
 app.get("/", (req, res) => {
   res.render("home.ejs");
@@ -143,7 +150,6 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", async (req, res) => {
-
   const { email, password } = req.body;
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -155,21 +161,29 @@ app.post("/login", async (req, res) => {
     const customerQuery = db.collection("customers").where("uid", "==", uid).get();
 
     const [businessSnap, customerSnap] = await Promise.all([businessQuery, customerQuery]);
+    
     if (!businessSnap.empty) {
       req.session.ismess = true;
+      
+      const businessData = businessSnap.docs[0].data(); 
+      req.session.fees= businessData.rent;
+      //  console.log(req.session.fees);
+       
     }
+
     if (!customerSnap.empty) {
       req.session.iscustomer = true;
     }
+    const redirectUrl=  req.session.redirectUrl || "/";
     req.flash("success", "Login Success!");
-    res.redirect("/");
+    res.redirect(redirectUrl);  // Redirect to the homepage or dashboard after successful login
   } catch (error) {
     console.error("Error logging in:", error.message);
     req.flash("error", `${error.message}`);
-    res.redirect("/login");
+    res.redirect("/login");  // Redirect back to the login page if there's an error
   }
+});
 
-})
 
 app.get("/logout", async (req, res) => {
   try {
@@ -179,6 +193,7 @@ app.get("/logout", async (req, res) => {
     req.session.uid = null;
     req.session.iscustomer = null;
     req.session.ismess = null;
+    req.session.fees=null;
     req.flash("success", "Logout Success!");
     res.redirect("/");
   } catch (error) {
@@ -330,7 +345,7 @@ app.get("/customers", isLoggedIn, ismess, async (req, res) => {
 
 
 
-app.post("/customers/add", upload.single('customerImage'), isLoggedIn, ismess, async (req, res) => {
+app.post("/customers/add",isLoggedIn,ismess, upload.single('customerImage'), isLoggedIn, ismess, async (req, res) => {
   let url=req.file.path;
   let fileName=req.file.filename;
 
@@ -393,49 +408,10 @@ app.post("/customers/update/:id", isLoggedIn, ismess, async (req, res) => {
   }
 });
 
-// app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
-//   const messId = req.session.uid;
-//   let customers = [];
-
-//   try {
-//     const customersSnapshot = await db
-//       .collection("customers")
-//       .where("messId", "==", messId)
-//       .get();
-
-//     if (!customersSnapshot.empty) {
-//       customers = customersSnapshot.docs.map(doc => {
-//         const data = doc.data();
-//         const startDate = data.start_date.toDate();
-
-//         // Adjust the endDate by adding one month
-//         const endDate = new Date(startDate);
-//         endDate.setMonth(endDate.getMonth() + 1); // Add one month, handles varying days in months
-
-//         const currentDate = new Date();
-//         const remainingDays = Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000));
-
-//         return {
-//           id: doc.id,
-//           ...data,
-//           remainingDays, // Add remaining days for sorting
-//         };
-//       });
-
-//       // Sort customers by remaining days in ascending order
-//       customers.sort((a, b) => a.remainingDays - b.remainingDays);
-//     }
-
-//     res.render("dashboard.ejs", { customers });
-//   } catch (error) {
-//     console.error("Error fetching customers:", error);
-//     res.status(500).send("Error fetching customers.");
-//   }
-// });
-
 app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
   const messId = req.session.uid;
   let customers = [];
+  const fees= req.session.fees;
 
   try {
     const customersSnapshot = await db
@@ -484,7 +460,7 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
           endDate,
           isMonthEnded,
           remainingDays,
-          feesRemaining: 2300 - (data.feesPaid || 0), // Default fees amount
+          feesRemaining: fees - (data.feesPaid || 0), // Default fees amount
           monthDays, // Days in the current month for calculations
         };
       });
@@ -504,22 +480,42 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
   }
 });
 
-app.post("/delete-customer", async (req, res) => {
+app.post("/delete-customer",isLoggedIn,ismess, async (req, res) => {
   const { customerId } = req.body;
 
   try {
+    // Retrieve the customer's document
+    const customerDoc = await db.collection("customers").doc(customerId).get();
+
+    if (!customerDoc.exists) {
+      req.flash("error", "Customer not found!");
+      return res.redirect("/dashboard");
+    }
+
+    const customerData = customerDoc.data();
+
+    // Check if the customer has a customerImage and fileName
+    if (customerData.customerImage && customerData.customerImage.fileName) {
+      const fileName = customerData.customerImage.fileName;
+
+      // Delete the image from Cloudinary
+      await cloudinary.uploader.destroy(fileName);
+    }
+
     // Delete the customer document from Firestore
     await db.collection("customers").doc(customerId).delete();
 
-     req.flash("success","Customer deleted Success!");
+    req.flash("success", "Customer deleted successfully!");
     res.redirect("/dashboard");
   } catch (error) {
     console.error("Error deleting customer:", error);
+    req.flash("error", "Error deleting customer.");
     res.status(500).send("Error deleting customer.");
   }
 });
 
-app.post("/renew-customer", async (req, res) => {
+
+app.post("/renew-customer",isLoggedIn,ismess, async (req, res) => {
   const { customerId } = req.body;
 
   try {

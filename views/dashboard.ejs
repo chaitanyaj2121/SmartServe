@@ -69,8 +69,11 @@
   <% if (customers.length > 0) { %>
     <% customers.forEach((customer, index) => { %>
       <% 
+        let formattedStartDate = "N/A"; // Default value
+      if (customer.start_date && customer.start_date.toDate) {
         const startDate = new Date(customer.start_date.toDate()); // Convert Firestore Timestamp to JS Date
-        const formattedStartDate = startDate.toLocaleDateString("en-GB"); // Format as day/month/year
+        formattedStartDate = startDate.toLocaleDateString("en-GB"); // Format as day/month/year
+      }
       %>
         <div class="customer-card-wrapper">
           <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex flex-wrap align-items-center" style="border: 1px solid #ddd;">
@@ -102,7 +105,7 @@
                 <span class="fw-bold me-2">
                   <i class="bi bi-currency-rupee"></i> Fees Remaining:
                 </span> 
-                ₹<%= 2300 - customer.feesPaid %>
+                ₹<%= messFees - customer.feesPaid %>
               </p>
               <p class="mb-1">
                 <span class="fw-bold me-2">
