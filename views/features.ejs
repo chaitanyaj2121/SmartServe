@@ -1,0 +1,133 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container my-5">
+  <!-- Page Header -->
+  <div class="text-center mb-5">
+    <h1 class="fw-bold">Features of SmartServ Center</h1>
+    <p class="text-muted">Explore the powerful tools and features designed to simplify your service management.</p>
+  </div>
+
+  <!-- Features List -->
+  <div class="row text-center">
+    <!-- Feature 1 -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-users fa-3x text-primary mb-3"></i>
+          <h5 class="card-title fw-bold">Customer Management</h5>
+          <p class="card-text">
+            Add, update, and manage customer profiles with subscription details, including start dates, fees paid, and balances.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 2 -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-bell fa-3x text-success mb-3"></i>
+          <h5 class="card-title fw-bold">Notifications</h5>
+          <p class="card-text">
+            Receive automatic alerts for subscriptions nearing expiry, ensuring no missed renewals or updates.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 3 -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-calendar-day fa-3x text-warning mb-3"></i>
+          <h5 class="card-title fw-bold">Absentee Management</h5>
+          <p class="card-text">
+            Adjust subscription durations based on absentee days for mess services, ensuring accurate billing.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 4 -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-money-bill-wave fa-3x text-danger mb-3"></i>
+          <h5 class="card-title fw-bold">Payment Tracking</h5>
+          <p class="card-text">
+            Monitor fees paid and remaining balances in real-time, simplifying financial management.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 5 -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-chart-line fa-3x text-info mb-3"></i>
+          <h5 class="card-title fw-bold">Analytics Dashboard</h5>
+          <p class="card-text">
+            Get valuable insights with analytics for attendance, payments, and subscription trends.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 6 -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-images fa-3x text-secondary mb-3"></i>
+          <h5 class="card-title fw-bold">Customer Photos</h5>
+          <p class="card-text">
+            Upload and view customer photos for quick identification and a personalized experience.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Call-to-Action -->
+  <div class="row mt-5 text-center">
+    <h3 class="fw-bold">Ready to Get Started?</h3>
+    <p class="text-muted">
+      Start using SmartServ Center today and take the hassle out of managing your services and subscriptions.
+    </p>
+    <a href="/signup/business" class="btn btn-primary btn-lg mx-auto" style="width: fit-content;">
+      <i class="fa-solid fa-rocket"></i> Sign Up Now
+    </a>
+  </div>
+</div>
+
+<style>
+/* Page Styling */
+.card {
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.fa-3x {
+  margin-bottom: 15px;
+}
+
+.btn-primary {
+  padding: 0.8rem 1.5rem;
+  font-size: 1.1rem;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 20px;
+  }
+}
+</style>

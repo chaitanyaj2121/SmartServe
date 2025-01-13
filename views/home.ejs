@@ -4,9 +4,12 @@
   <!-- Hero Section -->
   <div class="row align-items-center hero-section">
     <div class="col-md-6 text-center text-md-start">
-      <h1 class="display-4 fw-bold">Simplify Your Management</h1>
-      <p class="lead text-muted">Manage subscriptions, track absentees, and notify users seamlessly with our smart solution.</p>
-      <a href="/signup" class="btn btn-primary btn-lg me-3">
+      <h1 class="display-4 fw-bold">Manage Your Services Smartly</h1>
+      <p class="lead text-muted">
+        Welcome to <strong>SmartServ Center</strong>, your ultimate solution for managing monthly services with ease. 
+        Track customer subscriptions, update payments, and streamline operations all in one place.
+      </p>
+      <a href="/signup/business" class="btn btn-primary btn-lg me-3">
         <i class="fa-solid fa-user-plus"></i> Get Started
       </a>
       <a href="/features" class="btn btn-outline-secondary btn-lg">
@@ -14,37 +17,134 @@
       </a>
     </div>
     <div class="col-md-6 text-center">
-      <img src="/images/pexels-timmossholder-18895423.jpg" class="img-fluid rounded" alt="Hero Image">
+      <img src="/images/pexels-timmossholder-18895423.jpg" class="img-fluid rounded shadow-lg" alt="Hero Image">
     </div>
   </div>
 
   <!-- Features Section -->
   <div class="row my-5 text-center">
-    <h2 class="fw-bold">Why Choose Us?</h2>
-    <p class="text-muted">Explore the features that make us the perfect choice for mess and employee management.</p>
+    <h2 class="fw-bold">Why SmartServ Center?</h2>
+    <p class="text-muted">
+      Discover how our platform helps you effortlessly manage services and customers, saving time and effort.
+    </p>
+
+    <!-- Feature 1 -->
     <div class="col-md-4">
-      <i class="fa-solid fa-bell fa-3x text-primary mb-3"></i>
+      <i class="fa-solid fa-users fa-3x text-primary mb-3"></i>
+      <h5 class="fw-bold">Comprehensive Customer Management</h5>
+      <p>
+        Add, update, and view all customer details, including their subscription start dates, fees paid, and remaining balance.
+      </p>
+    </div>
+
+    <!-- Feature 2 -->
+    <div class="col-md-4">
+      <i class="fa-solid fa-bell fa-3x text-success mb-3"></i>
       <h5 class="fw-bold">Timely Notifications</h5>
-      <p>Get automatic alerts when subscriptions are about to expire or absentee days exceed limits.</p>
+      <p>
+        Never miss an update! Get notified about customers whose subscription period is ending today, ensuring seamless renewals.
+      </p>
     </div>
+
+    <!-- Feature 3 -->
     <div class="col-md-4">
-      <i class="fa-solid fa-calendar-check fa-3x text-success mb-3"></i>
-      <h5 class="fw-bold">Subscription Management</h5>
-      <p>Effortlessly track start dates, end dates, and extend subscriptions with ease.</p>
+      <i class="fa-solid fa-calendar-day fa-3x text-warning mb-3"></i>
+      <h5 class="fw-bold">Absentee Day Adjustments</h5>
+      <p>
+        Easily manage absentee days for mess services by extending subscriptions for customers who missed specific days.
+      </p>
     </div>
+
+    <!-- Feature 4 -->
     <div class="col-md-4">
-      <i class="fa-solid fa-chart-line fa-3x text-warning mb-3"></i>
-      <h5 class="fw-bold">Data Analytics</h5>
-      <p>Monitor attendance and payment records with detailed analytics.</p>
+      <i class="fa-solid fa-money-bill-wave fa-3x text-danger mb-3"></i>
+      <h5 class="fw-bold">Real-Time Payment Tracking</h5>
+      <p>
+        Stay updated with real-time payment status, track fees paid, and see the remaining balance at a glance.
+      </p>
+    </div>
+
+    <!-- Feature 5 -->
+    <div class="col-md-4">
+      <i class="fa-solid fa-chart-line fa-3x text-info mb-3"></i>
+      <h5 class="fw-bold">Dashboard Analytics</h5>
+      <p>
+        Gain insights into customer data with visual analytics, including payment trends, absenteeism, and renewal rates.
+      </p>
+    </div>
+
+    <!-- Feature 6 -->
+    <div class="col-md-4">
+      <i class="fa-solid fa-images fa-3x text-secondary mb-3"></i>
+      <h5 class="fw-bold">Customer Images</h5>
+      <p>
+        Upload and view customer images for quick and easy identification, adding a personal touch to your management.
+      </p>
     </div>
   </div>
 
   <!-- Call-to-Action Section -->
-  <div class="row my-5 bg-light p-5 rounded text-center shadow">
-    <h3 class="fw-bold">Join Us Today!</h3>
-    <p class="text-muted">Start managing your mess or employees more effectively with our user-friendly platform.</p>
-    <a href="/signup" class="btn btn-primary btn-lg">
-      <i class="fa-solid fa-rocket"></i> Sign Up Now
+  <div class="row my-5 bg-light p-5 rounded text-center shadow-lg">
+    <h3 class="fw-bold">Simplify Your Management Today</h3>
+    <p class="text-muted">
+      Join hundreds of businesses using SmartServ Center to streamline customer management and enhance efficiency.
+    </p>
+    <a href="/signup/business" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-rocket"></i> Get Started Now
     </a>
   </div>
 </div>
+
+<style>
+/* Hero Section */
+.hero-section h1 {
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+.hero-section img {
+  max-width: 90%;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Feature Icons */
+.fa-3x {
+  margin-bottom: 15px;
+}
+
+
+
+.btn-primary {
+  padding: 0.8rem 1.5rem;
+  font-size: 1.1rem;
+}
+
+.btn-outline-secondary {
+  padding: 0.8rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+}
+
+.shadow-lg {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .btn-primary,
+  .btn-outline-secondary {
+    font-size: 1rem;
+    padding: 0.7rem 1.2rem;
+  }
+}
+</style>

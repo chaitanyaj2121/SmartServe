@@ -91,7 +91,15 @@ const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = 
 const { auth } = require("./firebase-config");
 const { isLoggedIn, ismess } = require('./middlewares');
 
-app.get("/signup/business", (rea, res) => {
+app.get("/features",(req,res)=>{
+  res.render("features.ejs");
+})
+
+app.get("/signup/business", (req, res) => {
+  if ( req.session.user) {
+   req.flash("error","already loged in!!")
+   return res.redirect("/");
+  }
   res.render("signupBusiness.ejs");
   console.log("Signup form send for business");
 })
@@ -597,4 +605,9 @@ app.get("/nearby", isLoggedIn, async (req, res) => {
     req.flash("error", `Error fetching businesses: ${error.message}`);
     res.redirect("/");
   }
+});
+
+// Handle other routes
+app.use('*', (req, res) => {
+  res.render("pageNotFound.ejs");
 });
