@@ -302,17 +302,24 @@ app.get("/customers", isLoggedIn, ismess, async (req, res) => {
 
   try {
     // Fetch customers whose `messId` matches the owner's `messId`
-    const customersSnapshot = await db.collection("customers").where("messId", "==", messId).get();
+    const customersSnapshot = await db.collection("customers")
+      .where("messId", "==", messId)
+      .get();
 
     if (!customersSnapshot.empty) {
-      customers = customersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Map customers and sort them by `feesRemaining` in descending order
+      customers = customersSnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => (b.feesRemaining || 0) - (a.feesRemaining || 0)); // Ensure feesRemaining exists
     }
+
     res.render("customers.ejs", { customers });
   } catch (error) {
     console.error("Error fetching customers:", error);
     res.status(500).send("Error fetching customers.");
   }
 });
+
 
 
 app.post("/customers/add", upload.single('customerImage'), isLoggedIn, ismess, async (req, res) => {
@@ -378,6 +385,46 @@ app.post("/customers/update/:id", isLoggedIn, ismess, async (req, res) => {
   }
 });
 
+// app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
+//   const messId = req.session.uid;
+//   let customers = [];
+
+//   try {
+//     const customersSnapshot = await db
+//       .collection("customers")
+//       .where("messId", "==", messId)
+//       .get();
+
+//     if (!customersSnapshot.empty) {
+//       customers = customersSnapshot.docs.map(doc => {
+//         const data = doc.data();
+//         const startDate = data.start_date.toDate();
+
+//         // Adjust the endDate by adding one month
+//         const endDate = new Date(startDate);
+//         endDate.setMonth(endDate.getMonth() + 1); // Add one month, handles varying days in months
+
+//         const currentDate = new Date();
+//         const remainingDays = Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000));
+
+//         return {
+//           id: doc.id,
+//           ...data,
+//           remainingDays, // Add remaining days for sorting
+//         };
+//       });
+
+//       // Sort customers by remaining days in ascending order
+//       customers.sort((a, b) => a.remainingDays - b.remainingDays);
+//     }
+
+//     res.render("dashboard.ejs", { customers });
+//   } catch (error) {
+//     console.error("Error fetching customers:", error);
+//     res.status(500).send("Error fetching customers.");
+//   }
+// });
+
 app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
   const messId = req.session.uid;
   let customers = [];
@@ -389,30 +436,141 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
       .get();
 
     if (!customersSnapshot.empty) {
+      const batch = db.batch(); // Firestore batch operation for atomic updates
+
       customers = customersSnapshot.docs.map(doc => {
         const data = doc.data();
         const startDate = data.start_date.toDate();
-        const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // Add 30 days
+
+        // Determine the number of days in the current month
+        const monthDays = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
+
+        // Calculate the endDate (one month from the start date)
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + 1);
+
         const currentDate = new Date();
-        const remainingDays = Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000));
+        const isMonthEnded = currentDate > endDate; // Check if the month has ended
+        let remainingDays = Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000));
+
+        if (remainingDays < 0) remainingDays = 0; // Ensure no negative remaining days
+
+        // If the month has ended, update the start date and reset feesPaid
+        if (isMonthEnded) {
+          const newStartDate = new Date(endDate); // Next month start date
+          data.start_date = newStartDate; // Update in the local object
+          data.feesPaid = 0; // Reset feesPaid to 0
+
+          // Update the database
+          const customerRef = db.collection("customers").doc(doc.id);
+          batch.update(customerRef, {
+            start_date: newStartDate,
+            feesPaid: 0,
+          });
+        }
 
         return {
           id: doc.id,
           ...data,
-          remainingDays, // Add remaining days for sorting
+          startDate,
+          endDate,
+          isMonthEnded,
+          remainingDays,
+          feesRemaining: 2300 - (data.feesPaid || 0), // Default fees amount
+          monthDays, // Days in the current month for calculations
         };
       });
 
-      // Sort customers by remaining days in ascending order
-      customers.sort((a, b) => a.remainingDays - b.remainingDays);
+      // Commit the batch updates if any
+      await batch.commit();
+
+      // Sort customers by fees remaining in descending order
+      customers.sort((a, b) => b.feesRemaining - a.feesRemaining);
     }
 
     res.render("dashboard.ejs", { customers });
   } catch (error) {
     console.error("Error fetching customers:", error);
-    res.status(500).send("Error fetching customers.");
+    req.flash("error","Error while loading");
+   res.redirect("/dashboard");
   }
 });
+
+app.post("/delete-customer", async (req, res) => {
+  const { customerId } = req.body;
+
+  try {
+    // Delete the customer document from Firestore
+    await db.collection("customers").doc(customerId).delete();
+
+     req.flash("success","Customer deleted Success!");
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+    res.status(500).send("Error deleting customer.");
+  }
+});
+
+app.post("/renew-customer", async (req, res) => {
+  const { customerId } = req.body;
+
+  try {
+    // Get the current date
+    const newStartDate = new Date();
+
+    // Update the customer's start_date in Firestore
+    await db.collection("customers").doc(customerId).update({
+      start_date: newStartDate,
+      feesPaid: 0,
+    });
+
+    // Redirect back to the dashboard or send a success response
+    req.flash("success","Renew Success!");
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.error("Error renewing customer:", error);
+   
+    req.flash("error", "Error renewing customer.");
+    res.redirect("/dashboard");
+  }
+});
+
+app.get("/notifications", isLoggedIn, ismess, async (req, res) => {
+  const messId = req.session.uid;
+  const today = new Date(); // Get today's date
+  today.setHours(0, 0, 0, 0); // Normalize to midnight for comparison
+
+  try {
+    const customersSnapshot = await db
+      .collection("customers")
+      .where("messId", "==", messId)
+      .get();
+
+    let todaysCustomers = [];
+
+    if (!customersSnapshot.empty) {
+      todaysCustomers = customersSnapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          const startDate = data.start_date.toDate();
+          if (startDate.toDateString() === today.toDateString()) {
+            return {
+              id: doc.id,
+              ...data,
+            };
+          }
+        })
+        .filter(Boolean); // Remove undefined entries
+    }
+
+    res.render("notifications.ejs", { todaysCustomers });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).send("Error fetching notifications.");
+  }
+});
+
+
 
 app.get("/nearby", isLoggedIn, async (req, res) => {
   try {

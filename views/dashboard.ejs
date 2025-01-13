@@ -38,6 +38,29 @@
   transform: translateY(0);
   opacity: 1;
 }
+.customer-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; /* Spacing between items */
+  justify-content: space-between; /* Ensure consistent spacing */
+}
+
+.customer-card-wrapper {
+  display: flex;
+  flex-direction: column; /* Stack customer card and index */
+  align-items: center; /* Center-align the content */
+  width: 100%; /* Ensure consistent width */
+}
+
+.customer-card {
+  width: 100%; /* Stretch the card within the wrapper */
+}
+
+.customer-index {
+  text-align: center; /* Center align the index below the card */
+  margin-top: 0.5rem; /* Add some space between card and index */
+}
+
 
 </style>
 <div class="customer-list container mt-4">
@@ -45,88 +68,105 @@
 
   <% if (customers.length > 0) { %>
     <% customers.forEach((customer, index) => { %>
-    
       <% 
-        const startDate = customer.start_date.toDate();
+        const startDate = new Date(customer.start_date.toDate()); // Convert Firestore Timestamp to JS Date
         const formattedStartDate = startDate.toLocaleDateString("en-GB"); // Format as day/month/year
-        const currCusId = customer.id;
-        const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // Add 30 days
-        const formattedEndDate = endDate.toLocaleDateString("en-GB");
-
-        const currentDate = new Date();
-        const isEnded = currentDate > endDate; // Check if the mess has ended
-        const remainingDays = Math.ceil((endDate.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000));
-        const daysLeftText = remainingDays > 0 
-          ? `${remainingDays} days remaining` 
-          : `Your mess ended on ${formattedEndDate}`;
       %>
-      <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex flex-wrap align-items-center" style="border: 1px solid #ddd;">
-        <!-- Customer Image -->
-        <div class="customer-image me-3 mb-3" style="flex: 0 0 100px; height: 100px; overflow: hidden; border-radius: 50%;">
-          <img 
-            src="<%= customer.customerImage.url %>" 
-            alt="Customer Image" 
-            class="img-fluid w-100 h-100 object-fit-cover" 
-            style="border-radius: 50%;"
-          />
-        </div>
+        <div class="customer-card-wrapper">
+          <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex flex-wrap align-items-center" style="border: 1px solid #ddd;">
+            <div class="customer-image me-3 mb-3" style="flex: 0 0 100px; height: 100px; overflow: hidden; border-radius: 50%;">
+              <img 
+                src="<%= customer.customerImage.url %>" 
+                alt="Customer Image" 
+                class="img-fluid w-100 h-100 object-fit-cover" 
+                style="border-radius: 50%;"
+              />
+            </div>
       
-        <!-- Customer Details -->
-        <div class="customer-details" style="flex: 1;">
-          <p class="mb-1">
-            <span class="fw-bold me-2">
-              <i class="bi bi-person-circle"></i> Name:
-            </span> 
-            <%= customer.name %>
-          </p>
-          <p class="mb-1">
-            <span class="fw-bold me-2">
-              <i class="bi bi-currency-rupee"></i> Fees Paid:
-            </span> 
-            <%= customer.feesPaid %>
-          </p>
-          <p class="mb-1">
-            <span class="fw-bold me-2">
-              <i class="bi bi-currency-rupee"></i> Fees Remaining:
-            </span> 
-            <%= 2300 - customer.feesPaid %>
-          </p>
-          <p class="mb-1">
-            <span class="fw-bold me-2">
-              <i class="bi bi-telephone-fill"></i> Mobile:
-            </span> 
-            <%= customer.mobile || "N/A" %>
-          </p>
-          <p class="mb-0">
-            <span class="fw-bold me-2">
-              <i class="bi bi-calendar-date"></i> Starting Date:
-            </span> 
-            <%= formattedStartDate %>
-          </p>
-          <% if (!isEnded) { %>
-            <p class="mt-1 text-success fw-bold">
-              <i class="bi bi-clock"></i> <%= daysLeftText %>
-            </p>
-          <% } else { %>
-            <p class="mt-1 text-danger fw-bold">
-              <i class="bi bi-exclamation-triangle"></i> <%= daysLeftText %>
-            </p>
-          <% } %>
-        </div>
-      </div>
-      
-        
-        <div class="customer-index">
-            <span style="cursor: pointer; margin-bottom: 1rem;" class="badge bg-primary fs-5" data-bs-toggle="modal" data-bs-target="#addCustomerModal-<%= customer.id %>">
-             Manage
+            <div class="customer-details" style="flex: 1;">
+              <span class="badge bg-success fs-5" style="margin:0.5rem 0.5rem 0 0;">
+                #<%= index + 1 %>
+              </span>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-person-circle"></i> Name:
+                </span> 
+                <%= customer.name %>
+              </p>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-currency-rupee"></i> Fees Paid: 
+                </span>₹<%= customer.feesPaid %>
+              </p>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-currency-rupee"></i> Fees Remaining:
+                </span> 
+                ₹<%= 2300 - customer.feesPaid %>
+              </p>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-telephone-fill"></i> Mobile:
+                </span> 
+                <%= customer.mobile || "N/A" %>
+              </p>
+              <p class="mb-0">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-calendar-date"></i> Starting Date:
+                </span> 
+                <%= formattedStartDate %>
+              </p>
+            
+            </div>
+            <span style="cursor: pointer; margin:0.5rem 0.5rem 0 0;" class="badge bg-primary fs-5" data-bs-toggle="modal" data-bs-target="#addCustomerModal-<%= customer.id %>">
+              Manage
             </span>
-          <span class="badge bg-primary fs-5">
-            #<%= index + 1 %>
-          </span>
-        </div>
+               <!-- Delete Button -->
+         <form action="/delete-customer" method="POST" class="mt-2">
+          <input type="hidden" name="customerId" value="<%= customer.id %>">
+          <button type="submit" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash"></i> Delete Customer
+          </button>
+        </form>
+
+          <!-- Renew Customer Button -->
+          <form action="/renew-customer" method="POST" style="margin-left:  0.5rem ;" class="mt-2">
+            <input type="hidden" name="customerId" value="<%= customer.id %>">
+            <button type="submit" class="btn btn-warning btn-sm">
+              <i class="bi bi-arrow-clockwise"></i> Renew Customer
+            </button>
+          </form>
+          </div>
+         
+          <div class="customer-index">
+          
+  
+
+         
+                  <!-- Modal for delete conformation-->
+<div class="modal fade" id="deleteCustomerModal-<%= customer.id %>" tabindex="-1" aria-labelledby="deleteCustomerLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteCustomerLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      
-      <!-- Modal with a unique ID -->
+      <div class="modal-body">
+        Are you sure you want to delete <strong><%= customer.name %></strong>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form action="/delete-customer" method="POST">
+          <input type="hidden" name="customerId" value="<%= customer.id %>">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+          </div>
+        </div>
+
       <div class="modal fade" id="addCustomerModal-<%= customer.id %>" tabindex="-1" aria-labelledby="addCustomerModalLabel-<%= customer.id %>" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content form-container">
@@ -164,6 +204,9 @@
           </div>
         </div>
       </div>
+
+
+
     <% }) %>
   <% } else { %>
     <div class="no-customers text-center p-4 rounded bg-light">

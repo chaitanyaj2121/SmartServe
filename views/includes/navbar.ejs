@@ -1,9 +1,116 @@
-<nav class="navbar navbar-expand-md bg-body-light sticky-top shadow-sm">
+
+<style>
+  .navbar {
+  background: linear-gradient(90deg, #4a90e2, #56ccf2);
+  color: white;
+}
+
+.navbar a {
+  color: white !important;
+}
+
+.navbar-toggler {
+  border: none;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=UTF8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.7%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+@media (max-width: 768px) {
+  /* Navbar container */
+  .navbar-nav {
+    background-color: rgba(46, 97, 155, 0.9); /* Slightly opaque green background */
+    padding: 1rem;
+    border-radius: 10px; /* Add rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+  }
+
+  /* Navbar links */
+  .navbar-nav .nav-link {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    color: #ffffff; /* White text for better contrast */
+    font-weight: 500;
+    text-align: center;
+    border-radius: 8px; /* Rounded corners for links */
+    padding: 0.5rem 0.8rem; /* Add padding for clickable area */
+    background-color: rgb(82,188,237); /* Match navbar's green background */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .navbar-nav .nav-link:hover {
+    background-color: rgba(0, 0, 0, 0.15); /* Soft dark hover effect */
+    transform: scale(1.05); /* Slight zoom on hover */
+  }
+
+  /* Dropdown menu inside navbar */
+  .navbar-nav .dropdown-menu {
+    background: rgb(82,188,237); /* Match navbar's green theme */
+    border-radius: 10px; /* Rounded corners */
+    padding: 0.8rem;
+    border: 1px solid rgba(0, 0, 0, 0.2); /* Subtle border */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Add shadow for pop-out effect */
+  }
+
+  .navbar-nav .dropdown-item {
+    color: #ffffff; /* White text for contrast */
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px; /* Rounded corners */
+    background-color: rgb(9, 157, 225); /* Match navbar green */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .navbar-nav .dropdown-item:hover {
+    background-color: rgba(0, 0, 0, 0.15); /* Soft dark hover effect */
+    color: #ffffff; /* Ensure white text remains visible */
+  }
+
+  /* Center align the nav-links for a cleaner look on mobile */
+  .navbar-nav {
+    text-align: center;
+  }
+}
+
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+  background-color: #4a90e2; /* Match the navbar background or choose a suitable color */
+  border: none;
+  border-radius: 8px; /* Rounded corners for a modern look */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.dropdown-menu .dropdown-item {
+  color: white; /* White text for visibility */
+  font-size: 1rem; /* Adjust font size */
+  padding: 10px 15px; /* Add spacing for clickable areas */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #56ccf2; /* Slightly lighter color on hover */
+  color: white; /* Keep text color consistent */
+}
+
+/* Adjust for small screens */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    width: 100%; /* Make the dropdown fill the screen width */
+    margin-top: 0.5rem;
+    left: 0;
+    right: 0;
+  }
+}
+
+</style>
+<nav class="navbar navbar-expand-md bg-light sticky-top shadow-sm">
   <div class="container-fluid">
     <!-- Logo and Title -->
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <i class="fa-solid fa-utensils"></i>
-      <span class="ms-2 fw-bold">SmartServe</span>
+    <a class="navbar-brand d-flex align-items-center" href="/" style="font-size: 1.2rem; font-weight: bold; color: #4a90e2;">
+      <i class="fa-solid fa-utensils me-2" style="font-size: 1.5rem;"></i> SmartServe
     </a>
 
     <!-- Toggle Button for Mobile View -->
@@ -15,76 +122,60 @@
     <!-- Navbar Links -->
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link" href="/">
+        <a class="nav-link" href="/" style="font-size: 1rem; color: #333;">
           <i class="fa-solid fa-house"></i> Home
         </a>
         <% if (ismess) { %>
-          <a class="nav-link" href="/dashboard">
+          <a class="nav-link" href="/dashboard" style="font-size: 1rem; color: #333;">
             <i class="fa-solid fa-chart-line"></i> Dashboard
           </a>
-          <a class="nav-link" href="/customers">
+          <a class="nav-link" href="/customers" style="font-size: 1rem; color: #333;">
             <i class="fa-solid fa-users"></i> Manage Customers
           </a>
-          <a class="nav-link" href="/notifications">
+          <a class="nav-link" href="/notifications" style="font-size: 1rem; color: #333;">
             <i class="fa-solid fa-bell"></i> Notifications
           </a>
-      </div>
-      <% } %>
+        <% } %>
         <% if (iscustomer) { %>
-          <a class="nav-link" href="/nearby">
-            <i class="fa-solid fa-bell"></i> Near By SmartServe
+          <a class="nav-link" href="/nearby" style="font-size: 1rem; color: #333;">
+            <i class="fa-solid fa-location-dot"></i> Nearby SmartServe
           </a>
-          <% } %>
-            <!-- Right-Side Navigation -->
-            <!-- Right-Side Navigation -->
-            <div class="navbar-nav ms-auto">
-              <% if (!currUser) { %>
-                <div class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="signupDropdown" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-user-plus"></i> Sign Up
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="signupDropdown">
-                    <li>
-                      <a class="dropdown-item" href="/signup/user">
-                        <i class="fa-solid fa-user"></i> as User
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="/signup/business">
-                        <i class="fa-solid fa-briefcase"></i> as Business
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <a class="nav-link" href="/login">
-                  <i class="fa-solid fa-right-to-bracket"></i> Log in
-                </a>
-                <% } else { %>
-                  <a class="nav-link" href="/profile">
-                    <i class="fa-solid fa-user"></i> Profile
-                  </a>
-                  <a class="nav-link" href="/logout">
-                    <i class="fa-solid fa-right-from-bracket"></i> Log out
-                  </a>
-                  <% } %>
-            </div>
+        <% } %>
+      </div>
 
+      <!-- Right-Side Navigation -->
+      <div class="navbar-nav ms-auto">
+        <% if (!currUser) { %>
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="signupDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1rem; color: #333;">
+              <i class="fa-solid fa-user-plus"></i> Sign Up
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="signupDropdown">
+              <li>
+                <a class="dropdown-item" href="/signup/user">
+                  <i class="fa-solid fa-user"></i> as User
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="/signup/business">
+                  <i class="fa-solid fa-briefcase"></i> as Business
+                </a>
+              </li>
+            </ul>
+          </div>
+          <a class="nav-link" href="/login" style="font-size: 1rem; color: #333;">
+            <i class="fa-solid fa-right-to-bracket"></i> Log in
+          </a>
+        <% } else { %>
+          <a class="nav-link" href="/profile" style="font-size: 1rem; color: #333;">
+            <i class="fa-solid fa-user"></i> Profile
+          </a>
+          <a class="nav-link" href="/logout" style="font-size: 1rem; color: #333;">
+            <i class="fa-solid fa-right-from-bracket"></i> Log out
+          </a>
+        <% } %>
+      </div>
     </div>
   </div>
 </nav>
-
-<script>
-  document.querySelectorAll('.dropdown').forEach(function (dropdown) {
-    dropdown.addEventListener('mouseenter', function () {
-      const dropdownMenu = this.querySelector('.dropdown-menu');
-      dropdownMenu.classList.add('show');
-    });
-
-    dropdown.addEventListener('mouseleave', function () {
-      const dropdownMenu = this.querySelector('.dropdown-menu');
-      dropdownMenu.classList.remove('show');
-    });
-  });
-
-</script>
