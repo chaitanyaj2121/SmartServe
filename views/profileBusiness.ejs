@@ -1,83 +1,85 @@
 <% layout("/layouts/boilerplate.ejs") %>
 <style>
-.profile-card {
-    background: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
+  .profile-card {
+      background: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
   }
   .profile-header {
-    display: flex;
-    align-items: center;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 15px;
+      margin-bottom: 15px;
   }
   .profile-header img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    margin-right: 15px;
+      width: 100px;
+      height: 100px;
+      border-radius: 10%;
+      margin-right: 15px;
+      object-fit: cover;
+      border: 2px solid #007bff;
   }
   .profile-header h2 {
-    font-size: 24px;
-    margin: 0;
+      font-size: 24px;
+      margin: 0;
   }
   .profile-header small {
-    font-size: 14px;
-    color: gray;
+      font-size: 14px;
+      color: gray;
   }
   .profile-content {
-    line-height: 1.6;
+      line-height: 1.6;
   }
   .profile-content i {
-    color: #007bff;
-    margin-right: 8px;
+      color: #007bff;
+      margin-right: 8px;
   }
   .profile-footer {
-    margin-top: 20px;
-    text-align: center;
+      margin-top: 20px;
+      text-align: center;
   }
   .profile-footer button {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
   }
   .profile-footer button:hover {
-    background-color: #0056b3;
+      background-color: #0056b3;
   }
 </style>
+
 <div class="profile-card">
     <!-- Profile Header -->
-    <!-- <% //data.forEach(elem => {%> -->
-        
-    
     <div class="profile-header">
-      <img src="https://via.placeholder.com/60" alt="Business Logo">
-      <div>
-        <h2><%= data.businessName %></h2>
-        <small>Owned by <%= data.ownerName %></small>
-      </div>
+        <% if (data.businessImage && data.businessImage.url) { %>
+            <img src="<%= data.businessImage.url %>" alt="Business Logo">
+        <% } else { %>
+            <img src="/path/to/default-image.jpg" alt="Default Logo">
+        <% } %>
+        <div>
+            <h2><%= data.businessName %></h2>
+            <small>Owned by <%= data.ownerName %></small>
+        </div>
     </div>
 
     <!-- Profile Content -->
     <div class="profile-content">
-      <p><i class="fas fa-map-marker-alt"></i><strong>Address:</strong> <%= data.address %></p>
-      <p><i class="fas fa-phone-alt"></i><strong>Phone:</strong> <%= data.phone %></p>
-      <p><i class="fas fa-money-bill-wave"></i><strong>Rent:</strong> ₹<%=data.rent %></p>
-      <p><i class="fas fa-info-circle"></i><strong>Description:</strong> <%= data.description %></p>
-      <!-- <p><i class="fas fa-calendar-alt"></i><strong>Registration Date:</strong> <%= //(data.createdAt.seconds * 1000).toLocaleString() %></p> -->
+        <p><i class="fas fa-map-marker-alt"></i><strong> Address:</strong> <%= data.address %></p>
+        <p><i class="fas fa-phone-alt"></i><strong> Phone:</strong> <%= data.phone %></p>
+        <p><i class="fas fa-money-bill-wave"></i><strong> Rent:</strong> ₹<%= data.rent %></p>
+        <p><i class="fas fa-info-circle"></i><strong> Description:</strong> <%= data.description %></p>
     </div>
-    <!-- <%// }); %> -->
+
     <!-- Profile Footer -->
     <div class="profile-footer">
-      <a href="/profile/edit_b/<%= data.uid %>"><button>Edit Profile</button></a>
-
+        <a href="/profile/edit_b/<%= data.uid %>"><button>Edit Profile</button></a>
     </div>
-  </div>
+</div>

@@ -1,7 +1,7 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
 <div class="notifications container mt-4">
-    <h2 class="text-center mb-4">Today's Customers</h2>
+    <h2 class="text-center mb-4">Subscription Ending Today</h2>
   
     <% if (todaysCustomers.length > 0) { %>
       <% todaysCustomers.forEach((customer) => { %>
@@ -41,7 +41,7 @@
         </div>
       <% }); %>
     <% } else { %>
-      <p class="text-center">No customers starting today.</p>
+      <p class="text-center">No customers Subscription Ending today.</p>
     <% } %>
   </div>
   

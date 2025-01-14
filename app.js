@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-const { storage ,cloudinary} = require("./cloudConfig");
+const { storage, cloudinary } = require("./cloudConfig");
 //multer used for the parsing the data from the file
 const multer = require('multer')
 const upload = multer({ storage })
@@ -76,8 +76,8 @@ app.use((req, res, next) => {
   res.locals.iscustomer = req.session.iscustomer || false;
   res.locals.ismess = req.session.ismess || false;
   res.locals.messFees = req.session.fees;
-   // Set the redirect URL if it exists in query parameters
-   if (req.query.redirectUrl) {
+  // Set the redirect URL if it exists in query parameters
+  if (req.query.redirectUrl) {
     res.locals.redirectUrl = req.query.redirectUrl;
   }
 
@@ -98,20 +98,23 @@ const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = 
 const { auth } = require("./firebase-config");
 const { isLoggedIn, ismess } = require('./middlewares');
 
-app.get("/features",(req,res)=>{
+app.get("/features", (req, res) => {
   res.render("features.ejs");
 })
 
 app.get("/signup/business", (req, res) => {
-  if ( req.session.user) {
-   req.flash("error","already loged in!!")
-   return res.redirect("/");
+  if (req.session.user) {
+    req.flash("error", "already loged in!!")
+    return res.redirect("/");
   }
   res.render("signupBusiness.ejs");
   console.log("Signup form send for business");
 })
 
-app.post("/signup/business", async (req, res) => {
+app.post("/signup/business", upload.single('businessImage'), async (req, res) => {
+  let url = req.file.path;
+  let fileName = req.file.filename;
+
   try {
     // Extract fields from req.body
     const { businessName, ownerName, address, phone, rent, email, description, password } = req.body;
@@ -132,9 +135,12 @@ app.post("/signup/business", async (req, res) => {
       rent,
       description,
       uid,
+      businessImage: { url, fileName },
       // Save the photo URL
       createdAt: new Date(),
+
     });
+
 
     req.flash("success", "Business registered successfully. Log in now!");
     res.redirect("/");
@@ -161,20 +167,20 @@ app.post("/login", async (req, res) => {
     const customerQuery = db.collection("customers").where("uid", "==", uid).get();
 
     const [businessSnap, customerSnap] = await Promise.all([businessQuery, customerQuery]);
-    
+
     if (!businessSnap.empty) {
       req.session.ismess = true;
-      
-      const businessData = businessSnap.docs[0].data(); 
-      req.session.fees= businessData.rent;
+
+      const businessData = businessSnap.docs[0].data();
+      req.session.fees = businessData.rent;
       //  console.log(req.session.fees);
-       
+
     }
 
     if (!customerSnap.empty) {
       req.session.iscustomer = true;
     }
-    const redirectUrl=  req.session.redirectUrl || "/";
+    const redirectUrl = req.session.redirectUrl || "/";
     req.flash("success", "Login Success!");
     res.redirect(redirectUrl);  // Redirect to the homepage or dashboard after successful login
   } catch (error) {
@@ -193,7 +199,7 @@ app.get("/logout", async (req, res) => {
     req.session.uid = null;
     req.session.iscustomer = null;
     req.session.ismess = null;
-    req.session.fees=null;
+    req.session.fees = null;
     req.flash("success", "Logout Success!");
     res.redirect("/");
   } catch (error) {
@@ -345,28 +351,28 @@ app.get("/customers", isLoggedIn, ismess, async (req, res) => {
 
 
 
-app.post("/customers/add",isLoggedIn,ismess, upload.single('customerImage'), isLoggedIn, ismess, async (req, res) => {
-  let url=req.file.path;
-  let fileName=req.file.filename;
+app.post("/customers/add", isLoggedIn, ismess, upload.single('customerImage'), isLoggedIn, ismess, async (req, res) => {
+  let url = req.file.path;
+  let fileName = req.file.filename;
 
-    const { name, mobile, start_date, feesPaid} = req.body;
-    const messId=req.session.uid;  
-    try {
-      await db.collection("customers").add({
-        name,
-        mobile: mobile || null, // Allow null if no mobile is provided
-        start_date: new Date(start_date),
-        messId,
-        feesPaid, 
-        customerImage: {url,fileName},
-        createdAt: new Date(),
-      });
-      req.flash("success","Customer Addmited Successfully!!");
-      res.redirect("/customers");
-    } catch (error) {
-      req.flash("error",`${error.message}`)
-  res.redirect("/customers");
-    }
+  const { name, mobile, start_date, feesPaid } = req.body;
+  const messId = req.session.uid;
+  try {
+    await db.collection("customers").add({
+      name,
+      mobile: mobile || null, // Allow null if no mobile is provided
+      start_date: new Date(start_date),
+      messId,
+      feesPaid,
+      customerImage: { url, fileName },
+      createdAt: new Date(),
+    });
+    req.flash("success", "Customer Addmited Successfully!!");
+    res.redirect("/customers");
+  } catch (error) {
+    req.flash("error", `${error.message}`)
+    res.redirect("/customers");
+  }
 });
 
 app.post("/customers/update/:id", isLoggedIn, ismess, async (req, res) => {
@@ -410,8 +416,8 @@ app.post("/customers/update/:id", isLoggedIn, ismess, async (req, res) => {
 
 app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
   const messId = req.session.uid;
+  const fees = req.session.fees;
   let customers = [];
-  const fees= req.session.fees;
 
   try {
     const customersSnapshot = await db
@@ -420,32 +426,29 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
       .get();
 
     if (!customersSnapshot.empty) {
-      const batch = db.batch(); // Firestore batch operation for atomic updates
+      const batch = db.batch(); // Initialize Firestore batch
 
       customers = customersSnapshot.docs.map(doc => {
         const data = doc.data();
         const startDate = data.start_date.toDate();
 
-        // Determine the number of days in the current month
-        const monthDays = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
-
-        // Calculate the endDate (one month from the start date)
-        const endDate = new Date(startDate);
-        endDate.setMonth(endDate.getMonth() + 1);
-
+        // Calculate endDate (exactly one month after startDate)
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate());
         const currentDate = new Date();
-        const isMonthEnded = currentDate > endDate; // Check if the month has ended
-        let remainingDays = Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000));
 
-        if (remainingDays < 0) remainingDays = 0; // Ensure no negative remaining days
+        // Check if the month has ended
+        const isMonthEnded = currentDate >= endDate;
 
-        // If the month has ended, update the start date and reset feesPaid
+        // Calculate remaining days
+        const remainingDays = Math.max(0, Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000)));
+
+        // If the month has ended, update startDate and reset feesPaid
         if (isMonthEnded) {
-          const newStartDate = new Date(endDate); // Next month start date
-          data.start_date = newStartDate; // Update in the local object
-          data.feesPaid = 0; // Reset feesPaid to 0
+          const newStartDate = new Date(endDate); // Set new startDate as endDate
+          data.start_date = newStartDate; // Update in local object
+          data.feesPaid = 0; // Reset feesPaid
 
-          // Update the database
+          // Prepare batch update for Firestore
           const customerRef = db.collection("customers").doc(doc.id);
           batch.update(customerRef, {
             start_date: newStartDate,
@@ -453,6 +456,15 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
           });
         }
 
+        // // Log debug information
+        // console.log("Customer ID:", doc.id);
+        // console.log("Start Date (DB):", startDate);
+        // console.log("End Date:", endDate);
+        // console.log("Current Date:", currentDate);
+        // console.log("Is Month Ended:", isMonthEnded);
+        // console.log("Remaining Days:", remainingDays);
+
+        // Return updated customer data
         return {
           id: doc.id,
           ...data,
@@ -460,27 +472,27 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
           endDate,
           isMonthEnded,
           remainingDays,
-          feesRemaining: fees - (data.feesPaid || 0), // Default fees amount
-          monthDays, // Days in the current month for calculations
+          feesRemaining: fees - (data.feesPaid || 0),
         };
       });
 
-      // Commit the batch updates if any
+      // Commit batch updates if any
       await batch.commit();
 
       // Sort customers by fees remaining in descending order
       customers.sort((a, b) => b.feesRemaining - a.feesRemaining);
     }
 
+    // Render the dashboard with updated customer data
     res.render("dashboard.ejs", { customers });
   } catch (error) {
     console.error("Error fetching customers:", error);
-    req.flash("error","Error while loading");
-   res.redirect("/dashboard");
+    req.flash("error", "Error while loading");
+    res.redirect("/dashboard");
   }
 });
 
-app.post("/delete-customer",isLoggedIn,ismess, async (req, res) => {
+app.post("/delete-customer", isLoggedIn, ismess, async (req, res) => {
   const { customerId } = req.body;
 
   try {
@@ -515,7 +527,7 @@ app.post("/delete-customer",isLoggedIn,ismess, async (req, res) => {
 });
 
 
-app.post("/renew-customer",isLoggedIn,ismess, async (req, res) => {
+app.post("/renew-customer", isLoggedIn, ismess, async (req, res) => {
   const { customerId } = req.body;
 
   try {
@@ -529,11 +541,11 @@ app.post("/renew-customer",isLoggedIn,ismess, async (req, res) => {
     });
 
     // Redirect back to the dashboard or send a success response
-    req.flash("success","Renew Success!");
+    req.flash("success", "Renew Success!");
     res.redirect("/dashboard");
   } catch (error) {
     console.error("Error renewing customer:", error);
-   
+
     req.flash("error", "Error renewing customer.");
     res.redirect("/dashboard");
   }

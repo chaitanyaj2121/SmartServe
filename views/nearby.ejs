@@ -6,27 +6,45 @@
   <% if (businesses.length > 0) { %>
     <div class="row">
       <% businesses.forEach(business => { %>
-        <div class="col-md-4 mb-4">
+        <div class="col-md-6 col-lg-4 mb-4">
           <div class="card shadow-sm border-0">
-            <div class="card-header text-white bg-primary">
-              <h5 class="mb-0 text-center"><i class="fa-solid fa-utensils"></i> <%= business.businessName %></h5>
+            <!-- Business Image -->
+            <% if (business.businessImage && business.businessImage.url) { %>
+              <img src="<%= business.businessImage.url %>" class="card-img-top" alt="<%= business.businessName %>">
+            <% } else { %>
+              <img src="/default-image.jpg" class="card-img-top" alt="Default Business Image">
+            <% } %>
+
+            <!-- Business Info -->
+            <div class="card-header bg-primary text-white text-center">
+              <h5 class="mb-0"><i class="fa-solid fa-utensils"></i> <%= business.businessName %></h5>
             </div>
             <div class="card-body">
               <p class="card-text">
                 <i class="fa-solid fa-user"></i> <strong>Owner:</strong> <%= business.ownerName %> <br>
                 <i class="fa-solid fa-location-dot"></i> <strong>Address:</strong> <%= business.address %> <br>
                 <i class="fa-solid fa-phone"></i> <strong>Phone:</strong> <%= business.phone %> <br>
-                <i class="fa-solid fa-wallet"></i> <strong>Rent:</strong> ₹<%= business.rent %>
+                <i class="fa-solid fa-wallet"></i> <strong>Monthly:</strong> ₹<%= business.rent %>
               </p>
             </div>
             <div class="card-footer text-center">
-              <button class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-info-circle"></i> View Details</button>
+              <!-- Get Directions Button -->
+              <% if (business.latitude && business.longitude) { %>
+                <a href="https://www.google.com/maps?q=<%= business.latitude %>,<%= business.longitude %>" target="_blank" class="btn btn-outline-success btn-sm">
+                  <i class="fa-solid fa-map-marker-alt"></i> Get Directions
+                </a>
+              <% } %>
+              <!-- View Details Button -->
+              <button class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-info-circle"></i> View Details
+              </button>
             </div>
           </div>
         </div>
       <% }) %>
     </div>
   <% } else { %>
+    <!-- No Businesses Found -->
     <div class="text-center">
       <i class="fa-solid fa-circle-exclamation fa-3x text-muted"></i>
       <p class="text-muted mt-3">No businesses registered yet!</p>
@@ -35,22 +53,53 @@
 </div>
 
 <style>
-  /* Custom CSS */
+  /* Custom CSS for Cards */
   .card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 15px;
   }
   .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+  .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
   }
   .card-header {
     font-size: 1.2rem;
     font-weight: bold;
+    border-bottom: none;
   }
-  .btn-outline-primary {
+  .btn-outline-primary, .btn-outline-success {
     border-radius: 20px;
   }
-  .fa-circle-exclamation {
-    opacity: 0.6;
+  .btn-outline-primary:hover, .btn-outline-success:hover {
+    background-color: #007bff;
+    color: white;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .card {
+      margin: 0 auto;
+    }
+    .card-img-top {
+      height: 150px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .card-img-top {
+      height: 120px;
+    }
+    .card-header h5 {
+      font-size: 1rem;
+    }
+    .card-body p {
+      font-size: 0.9rem;
+    }
   }
 </style>

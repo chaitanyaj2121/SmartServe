@@ -16,63 +16,54 @@
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml;charset=UTF8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.7%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
-
 @media (max-width: 768px) {
   /* Navbar container */
   .navbar-nav {
-    background-color: rgba(46, 97, 155, 0.9); /* Slightly opaque green background */
-    padding: 1rem;
-    border-radius: 10px; /* Add rounded corners */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    transition: all 0.3s ease-in-out; /* Smooth transition */
+    position: absolute;
+    top: 100%; /* Position below the navbar */
+    right: 0; /* Align to the right */
+    background-color: rgba(46, 97, 155, 0.9); /* Slightly opaque background */
+    padding: 0.5rem;
+    border-radius: 10px; /* Rounded corners */
+    width: auto; /* Width adjusts to the content */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    display: none; /* Initially hidden */
+    z-index: 1000;
+  }
+
+  .navbar-nav.show {
+    display: block; /* Show the dropdown when toggled */
   }
 
   /* Navbar links */
   .navbar-nav .nav-link {
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
-    color: #ffffff; /* White text for better contrast */
+    font-size: 1rem;
+    color: #ffffff;
     font-weight: 500;
-    text-align: center;
+    text-align: left;
+    margin: 0.3rem 0;
+    padding: 0.5rem 1rem;
+    background-color: rgb(82, 188, 237); /* Match navbar color */
     border-radius: 8px; /* Rounded corners for links */
-    padding: 0.5rem 0.8rem; /* Add padding for clickable area */
-    background-color: rgb(82,188,237); /* Match navbar's green background */
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
   .navbar-nav .nav-link:hover {
-    background-color: rgba(0, 0, 0, 0.15); /* Soft dark hover effect */
-    transform: scale(1.05); /* Slight zoom on hover */
+    background-color: rgba(0, 0, 0, 0.15); /* Hover effect */
+  }
+  
+  /* Toggle button styling */
+  .navbar-toggler {
+    margin-left: auto; /* Align to the right */
+    border: none;
+    outline: none;
   }
 
-  /* Dropdown menu inside navbar */
-  .navbar-nav .dropdown-menu {
-    background: rgb(82,188,237); /* Match navbar's green theme */
-    border-radius: 10px; /* Rounded corners */
-    padding: 0.8rem;
-    border: 1px solid rgba(0, 0, 0, 0.2); /* Subtle border */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Add shadow for pop-out effect */
-  }
-
-  .navbar-nav .dropdown-item {
-    color: #ffffff; /* White text for contrast */
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 6px; /* Rounded corners */
-    background-color: rgb(9, 157, 225); /* Match navbar green */
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  .navbar-nav .dropdown-item:hover {
-    background-color: rgba(0, 0, 0, 0.15); /* Soft dark hover effect */
-    color: #ffffff; /* Ensure white text remains visible */
-  }
-
-  /* Center align the nav-links for a cleaner look on mobile */
-  .navbar-nav {
-    text-align: center;
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=UTF8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.7%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
   }
 }
+
 
 
 /* Dropdown Menu Styling */
@@ -106,6 +97,18 @@
 }
 
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const toggler = document.querySelector('.navbar-toggler');
+  const navMenu = document.querySelector('.navbar-nav');
+
+  toggler.addEventListener('click', () => {
+    navMenu.classList.toggle('show');
+  });
+});
+</script>
+
+
 <nav class="navbar navbar-expand-md bg-light sticky-top shadow-sm">
   <div class="container-fluid">
     <!-- Logo and Title -->
