@@ -1,74 +1,60 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const PORT = 3000;
 
+require("dotenv").config();
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const { storage, cloudinary } = require("./cloudConfig");
+const upload = multer({ storage });
+const flash = require("connect-flash");
+const session = require("express-session");
+const FirestoreStore = require("firestore-store")(session); // Firestore session store
+const admin = require("firebase-admin");
+const ejsMate = require("ejs-mate");
+const path = require("path");
 
+// Firebase setup
+const serviceAccount = require("./requirements/cityyanta-376f2-firebase-adminsdk-uk1j3-bc35af82a8.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+const db = admin.firestore();
+
+// Middleware
 app.use(express.json());
-const bodyParser = require('body-parser');
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-const { storage, cloudinary } = require("./cloudConfig");
-//multer used for the parsing the data from the file
-const multer = require('multer')
-const upload = multer({ storage })
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-require('dotenv').config();
-// Serve static files for form submission (e.g., CSS, JS, etc.)
-app.use(express.static('public'));
-const flash = require("connect-flash");
+// Templating
+app.engine("ejs", ejsMate);
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-
-const session = require("express-session");
+// Session configuration
 const sessionOptions = {
-  secret: process.env.SESSIONSECRET,
+  store: new FirestoreStore({
+    database: db,
+    collection: "sessions", // Firestore collection name for sessions
+  }),
+  secret: process.env.SESSIONSECRET || "yoursecretkey",
   resave: false,
-  saveUninitialized: true,
-  cookie: {    // ek hafte me woh bhul jayega of puchega fir se login karo 
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+  saveUninitialized: false,
+  cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Secure cookies in production
   },
 };
-
 
 app.use(session(sessionOptions));
 app.use(flash());
 
-
-
-// Ejs mate used for templating
-const ejsMate = require("ejs-mate");
-app.engine("ejs", ejsMate);
-
-app.listen(PORT, () => console.log(`App is listing on the Port: ${PORT}`));
-
-//------firebase setup----------
-
-const admin = require('firebase-admin');
-
-const serviceAccount = require('./requirements/cityyanta-376f2-firebase-adminsdk-uk1j3-bc35af82a8.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
-
-
-const path = require("path");
-const { log } = require('console');
-
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-// To parse the data or params comes in req or es
-app.use(express.urlencoded({ extended: true }));
-
-app.use(express.static(path.join(__dirname, "public")));
-
-// ----------flash msg storing in the locals-------------------------------
-
+// Flash message middleware
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
@@ -76,13 +62,16 @@ app.use((req, res, next) => {
   res.locals.iscustomer = req.session.iscustomer || false;
   res.locals.ismess = req.session.ismess || false;
   res.locals.messFees = req.session.fees;
-  // Set the redirect URL if it exists in query parameters
+
   if (req.query.redirectUrl) {
     res.locals.redirectUrl = req.query.redirectUrl;
   }
-
   next();
-})
+});
+
+// Server setup
+app.listen(PORT, () => console.log(`App is running on Port: ${PORT}`));
+
 //Home route
 app.get("/", (req, res) => {
   res.render("home.ejs");
@@ -98,22 +87,22 @@ const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = 
 const { auth } = require("./firebase-config");
 const { isLoggedIn, ismess } = require('./middlewares');
 
-app.get("/features", (req, res) => {
+app.get("/features",(req,res)=>{
   res.render("features.ejs");
 })
 
 app.get("/signup/business", (req, res) => {
-  if (req.session.user) {
-    req.flash("error", "already loged in!!")
-    return res.redirect("/");
+  if ( req.session.user) {
+   req.flash("error","already loged in!!")
+   return res.redirect("/");
   }
   res.render("signupBusiness.ejs");
   console.log("Signup form send for business");
 })
 
-app.post("/signup/business", upload.single('businessImage'), async (req, res) => {
-  let url = req.file.path;
-  let fileName = req.file.filename;
+app.post("/signup/business", upload.single('businessImage'),async (req, res) => {
+  let url=req.file.path;
+  let fileName=req.file.filename;
 
   try {
     // Extract fields from req.body
@@ -135,12 +124,12 @@ app.post("/signup/business", upload.single('businessImage'), async (req, res) =>
       rent,
       description,
       uid,
-      businessImage: { url, fileName },
+      businessImage: {url,fileName},
       // Save the photo URL
       createdAt: new Date(),
-
+  
     });
-
+    
 
     req.flash("success", "Business registered successfully. Log in now!");
     res.redirect("/");
@@ -167,20 +156,20 @@ app.post("/login", async (req, res) => {
     const customerQuery = db.collection("customers").where("uid", "==", uid).get();
 
     const [businessSnap, customerSnap] = await Promise.all([businessQuery, customerQuery]);
-
+    
     if (!businessSnap.empty) {
       req.session.ismess = true;
-
-      const businessData = businessSnap.docs[0].data();
-      req.session.fees = businessData.rent;
+      
+      const businessData = businessSnap.docs[0].data(); 
+      req.session.fees= businessData.rent;
       //  console.log(req.session.fees);
-
+       
     }
 
     if (!customerSnap.empty) {
       req.session.iscustomer = true;
     }
-    const redirectUrl = req.session.redirectUrl || "/";
+    const redirectUrl=  req.session.redirectUrl || "/";
     req.flash("success", "Login Success!");
     res.redirect(redirectUrl);  // Redirect to the homepage or dashboard after successful login
   } catch (error) {
@@ -199,7 +188,7 @@ app.get("/logout", async (req, res) => {
     req.session.uid = null;
     req.session.iscustomer = null;
     req.session.ismess = null;
-    req.session.fees = null;
+    req.session.fees=null;
     req.flash("success", "Logout Success!");
     res.redirect("/");
   } catch (error) {
@@ -351,28 +340,28 @@ app.get("/customers", isLoggedIn, ismess, async (req, res) => {
 
 
 
-app.post("/customers/add", isLoggedIn, ismess, upload.single('customerImage'), isLoggedIn, ismess, async (req, res) => {
-  let url = req.file.path;
-  let fileName = req.file.filename;
+app.post("/customers/add",isLoggedIn,ismess, upload.single('customerImage'), isLoggedIn, ismess, async (req, res) => {
+  let url=req.file.path;
+  let fileName=req.file.filename;
 
-  const { name, mobile, start_date, feesPaid } = req.body;
-  const messId = req.session.uid;
-  try {
-    await db.collection("customers").add({
-      name,
-      mobile: mobile || null, // Allow null if no mobile is provided
-      start_date: new Date(start_date),
-      messId,
-      feesPaid,
-      customerImage: { url, fileName },
-      createdAt: new Date(),
-    });
-    req.flash("success", "Customer Addmited Successfully!!");
-    res.redirect("/customers");
-  } catch (error) {
-    req.flash("error", `${error.message}`)
-    res.redirect("/customers");
-  }
+    const { name, mobile, start_date, feesPaid} = req.body;
+    const messId=req.session.uid;  
+    try {
+      await db.collection("customers").add({
+        name,
+        mobile: mobile || null, // Allow null if no mobile is provided
+        start_date: new Date(start_date),
+        messId,
+        feesPaid, 
+        customerImage: {url,fileName},
+        createdAt: new Date(),
+      });
+      req.flash("success","Customer Addmited Successfully!!");
+      res.redirect("/customers");
+    } catch (error) {
+      req.flash("error",`${error.message}`)
+  res.redirect("/customers");
+    }
 });
 
 app.post("/customers/update/:id", isLoggedIn, ismess, async (req, res) => {
@@ -416,8 +405,8 @@ app.post("/customers/update/:id", isLoggedIn, ismess, async (req, res) => {
 
 app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
   const messId = req.session.uid;
-  const fees = req.session.fees;
   let customers = [];
+  const fees= req.session.fees;
 
   try {
     const customersSnapshot = await db
@@ -426,45 +415,44 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
       .get();
 
     if (!customersSnapshot.empty) {
-      const batch = db.batch(); // Initialize Firestore batch
+      const batch = db.batch(); // Firestore batch operation for atomic updates
 
       customers = customersSnapshot.docs.map(doc => {
         const data = doc.data();
         const startDate = data.start_date.toDate();
 
-        // Calculate endDate (exactly one month after startDate)
+        // Determine the number of days in the current month
+        const monthDays = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
+
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate());
+
         const currentDate = new Date();
-
-        // Check if the month has ended
-        const isMonthEnded = currentDate >= endDate;
-
-        // Calculate remaining days
-        const remainingDays = Math.max(0, Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000)));
-
-        // If the month has ended, update startDate and reset feesPaid
+        const isMonthEnded = currentDate >= endDate; // Check if the month has ended or is the same day
+        let remainingDays = Math.ceil((endDate - currentDate) / (24 * 60 * 60 * 1000));
+        
+        if (remainingDays < 0) remainingDays = 0; // Ensure no negative remaining days
+        
+        // If the month has ended, update the start date and reset feesPaid
         if (isMonthEnded) {
-          const newStartDate = new Date(endDate); // Set new startDate as endDate
-          data.start_date = newStartDate; // Update in local object
-          data.feesPaid = 0; // Reset feesPaid
-
-          // Prepare batch update for Firestore
+          const newStartDate = new Date(endDate); // Next month start date
+          data.start_date = newStartDate; // Update in the local object
+          data.feesPaid = 0; // Reset feesPaid to 0
+        
+          // Update the database
           const customerRef = db.collection("customers").doc(doc.id);
           batch.update(customerRef, {
             start_date: newStartDate,
             feesPaid: 0,
           });
         }
+//         console.log("Customer ID:", doc.id);
+// console.log("Start Date:", startDate);
+// console.log("End Date:", endDate);
+// console.log("Current Date:", currentDate);
+// console.log("Is Month Ended:", isMonthEnded);
+// console.log("Remaining Days:", remainingDays);
 
-        // // Log debug information
-        // console.log("Customer ID:", doc.id);
-        // console.log("Start Date (DB):", startDate);
-        // console.log("End Date:", endDate);
-        // console.log("Current Date:", currentDate);
-        // console.log("Is Month Ended:", isMonthEnded);
-        // console.log("Remaining Days:", remainingDays);
 
-        // Return updated customer data
         return {
           id: doc.id,
           ...data,
@@ -472,27 +460,27 @@ app.get("/dashboard", isLoggedIn, ismess, async (req, res) => {
           endDate,
           isMonthEnded,
           remainingDays,
-          feesRemaining: fees - (data.feesPaid || 0),
+          feesRemaining: fees - (data.feesPaid || 0), // Default fees amount
+          monthDays, // Days in the current month for calculations
         };
       });
 
-      // Commit batch updates if any
+      // Commit the batch updates if any
       await batch.commit();
 
       // Sort customers by fees remaining in descending order
       customers.sort((a, b) => b.feesRemaining - a.feesRemaining);
     }
 
-    // Render the dashboard with updated customer data
     res.render("dashboard.ejs", { customers });
   } catch (error) {
     console.error("Error fetching customers:", error);
-    req.flash("error", "Error while loading");
-    res.redirect("/dashboard");
+    req.flash("error","Error while loading");
+   res.redirect("/dashboard");
   }
 });
 
-app.post("/delete-customer", isLoggedIn, ismess, async (req, res) => {
+app.post("/delete-customer",isLoggedIn,ismess, async (req, res) => {
   const { customerId } = req.body;
 
   try {
@@ -527,7 +515,7 @@ app.post("/delete-customer", isLoggedIn, ismess, async (req, res) => {
 });
 
 
-app.post("/renew-customer", isLoggedIn, ismess, async (req, res) => {
+app.post("/renew-customer",isLoggedIn,ismess, async (req, res) => {
   const { customerId } = req.body;
 
   try {
@@ -541,11 +529,11 @@ app.post("/renew-customer", isLoggedIn, ismess, async (req, res) => {
     });
 
     // Redirect back to the dashboard or send a success response
-    req.flash("success", "Renew Success!");
+    req.flash("success","Renew Success!");
     res.redirect("/dashboard");
   } catch (error) {
     console.error("Error renewing customer:", error);
-
+   
     req.flash("error", "Error renewing customer.");
     res.redirect("/dashboard");
   }
