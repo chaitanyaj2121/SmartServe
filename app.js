@@ -18,18 +18,15 @@ const mainRoutes = require("./routes"); // Main routes index
 // Firebase setup
 const db = admin.firestore();
 
-// const rateLimit = require("express-rate-limit");
-
-// // Create a rate limiter
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // Time window: 15 minutes
-//   max: 100, // Max requests per IP in the time window
-//   message: "Too many requests from this IP, please try again later", // Custom message for rate limit violation
-// });
-
-// // Apply the limiter to all routes
-// app.use(limiter);
-
+// Force HTTPS in production
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https") {
+      return res.redirect(`https://${req.header("host")}${req.url}`);
+    }
+    next();
+  });
+}
 
 // Middleware
 app.use(express.json());

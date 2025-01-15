@@ -1,4 +1,7 @@
 {
+  "engine":{
+    "node":"v20.17.0"
+  },
   "name": "wings",
   "version": "1.0.0",
   "main": "index.js",

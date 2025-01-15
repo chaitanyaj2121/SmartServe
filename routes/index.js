@@ -8,10 +8,22 @@ const upload = multer({ storage });
 // Firebase setup
 const admin = require("firebase-admin");
 
-const serviceAccount = require("../requirements/cityyanta-376f2-firebase-adminsdk-uk1j3-bc35af82a8.json");
+// Decode the Base64 string
+const firebaseCredentialsBase64 = process.env.FIREBASE_CREDENTIALS_BASE64;
+
+if (!firebaseCredentialsBase64) {
+  throw new Error("FIREBASE_CREDENTIALS_BASE64 is not set in environment variables");
+}
+
+const firebaseCredentials = JSON.parse(
+  Buffer.from(firebaseCredentialsBase64, "base64").toString("utf-8")
+);
+
+// Initialize Firebase Admin SDK
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(firebaseCredentials),
 });
+
 const db = admin.firestore();
 
 const { body } = require("express-validator");
