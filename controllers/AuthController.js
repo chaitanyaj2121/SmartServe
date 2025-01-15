@@ -6,7 +6,7 @@
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
-const { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = require("firebase/auth");
+const { signInWithEmailAndPassword, sendEmailVerification ,createUserWithEmailAndPassword, signOut } = require("firebase/auth");
 
 const { auth } = require("../firebase-config");
 const AuthController = {
@@ -32,7 +32,7 @@ const AuthController = {
       const uid = userCredential.user.uid;
 
 
-
+      await sendEmailVerification(userCredential.user);
       // Save business details to Firestore
       await db.collection("businesses").add({
         businessName,
@@ -49,7 +49,7 @@ const AuthController = {
       });
 
 
-      req.flash("success", "Business registered successfully. Log in now!");
+      req.flash("success", "Verification Mail Sent Successfully. Please verify");
       res.redirect("/login");
     } catch (error) {
       console.error("Error while registering business:", error);
@@ -62,38 +62,55 @@ const AuthController = {
   },
   login: async (req, res) => {
     const { email, password } = req.body;
+  
     try {
+      // Attempt to sign in the user with email and password
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      req.session.user = userCredential.user;
-      req.session.uid = userCredential.user.uid;
-      const uid = userCredential.user.uid;
-
+      const user = userCredential.user;
+  
+      // Check if the email is verified
+      if (!user.emailVerified) {
+        req.flash("error", "Please verify your email from inbox before logging in.");
+        return res.redirect("/login"); // Redirect to the email verification page
+      }
+  
+      // Store user details in the session
+      req.session.user = user;
+      req.session.uid = user.uid;
+  
+      const uid = user.uid;
+  
+      // Firestore queries for businesses and customers
       const businessQuery = db.collection("businesses").where("uid", "==", uid).get();
       const customerQuery = db.collection("customers").where("uid", "==", uid).get();
-
+  
       const [businessSnap, customerSnap] = await Promise.all([businessQuery, customerQuery]);
-
+  
+      // Check if the user is a business
       if (!businessSnap.empty) {
         req.session.ismess = true;
-
+  
         const businessData = businessSnap.docs[0].data();
         req.session.fees = businessData.rent;
-        //  console.log(req.session.fees);
-
       }
-
+  
+      // Check if the user is a customer
       if (!customerSnap.empty) {
         req.session.iscustomer = true;
       }
+  
+      // Redirect to the previous page or home page after login
       const redirectUrl = req.session.redirectUrl || "/";
-      req.flash("success", "Login Success!");
-      res.redirect(redirectUrl);  // Redirect to the homepage or dashboard after successful login
+      req.flash("success", "Login successful!");
+      res.redirect(redirectUrl);
     } catch (error) {
+      // Handle login errors
       console.error("Error logging in:", error.message);
       req.flash("error", `${error.message}`);
-      res.redirect("/login");  // Redirect back to the login page if there's an error
+      res.redirect("/login"); // Redirect back to the login page in case of an error
     }
-  },
+  }
+  ,
   logout: async (req, res) => {
     try {
       await signOut(auth); // Sign out using Firebase Auth

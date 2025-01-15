@@ -17,7 +17,7 @@ const db = admin.firestore();
 const { body } = require("express-validator");
 
 const { auth } = require("../firebase-config");
-const { isLoggedIn, ismess } = require('../middlewares');
+const { isLoggedIn, ismess, isEmailVerified } = require('../middlewares');
 
 // Import controllers
 const HomeController = require("../controllers/HomeController");
@@ -37,13 +37,14 @@ router.get("/test",(err,req,res,next)=>{
 next(err);
 })
 // Auth routes
+
 router.get("/signup/business", AuthController.getBusinessSignupForm);
 router.post("/signup/business", upload.single('businessImage'), AuthController.registerBusiness);
 
 router.get("/signup/user", AuthController.getSignupformForCustomer);
 router.post("/signup/user", AuthController.registerCustomer);
 
-router.get("/login", AuthController.getLoginForm);
+router.get("/login",AuthController.getLoginForm);
 
 router.post("/login",[
   body("email").isEmail().withMessage("Enter a valid email"),

@@ -1,5 +1,5 @@
 const { initializeApp } = require("firebase/app");
-const { getAuth, GoogleAuthProvider, signInWithPopup } = require("firebase/auth");
+const { getAuth, GoogleAuthProvider, sendEmailVerification,signInWithPopup } = require("firebase/auth");
 
 const firebaseConfig = {
     apiKey: "AIzaSyD6OXyVs8VA_-WsYn-D9NMXp_PxGWT_bik",
