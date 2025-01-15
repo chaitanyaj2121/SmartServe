@@ -50,7 +50,7 @@ const AuthController = {
 
 
       req.flash("success", "Business registered successfully. Log in now!");
-      res.redirect("/");
+      res.redirect("/login");
     } catch (error) {
       console.error("Error while registering business:", error);
       req.flash("error", `Error while registering business: ${error.message}`);

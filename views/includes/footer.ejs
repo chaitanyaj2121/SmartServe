@@ -1,0 +1,81 @@
+  <style>
+    /* Ensures the footer stays at the bottom when content is short */
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    main {
+      flex: 1; /* Fills the available space between header and footer */
+    }
+
+    footer {
+      background-color: #212529; /* Dark background for footer */
+      color: #ffffff; /* White text for contrast */
+    }
+
+    footer ul.list-inline li a:hover {
+      text-decoration: underline;
+      color: #ffc107; /* Accent color on hover */
+    }
+
+    footer a i {
+      transition: transform 0.2s ease;
+    }
+
+    footer a i:hover {
+      transform: scale(1.2); /* Slight zoom on hover */
+    }
+  </style>
+<main>
+
+</main>
+  <!-- Footer -->
+  <footer class="bg-dark text-light py-4">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- Branding Section -->
+        <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+          <h5 class="fw-bold">SmartServe</h5>
+          <p class="mb-0">Streamlining Services, Simplifying Life.</p>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="col-md-4 text-center mb-3 mb-md-0">
+          <ul class="list-inline mb-0">
+            <li class="list-inline-item mx-2">
+              <a href="/features" class="text-light text-decoration-none">About</a>
+            </li>
+            <li class="list-inline-item mx-2">
+              <a href="/" class="text-light text-decoration-none">Services</a>
+            </li>
+            <li class="list-inline-item mx-2">
+              <a href="#contact" class="text-light text-decoration-none">Contact</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Social Media Icons -->
+        <div class="col-md-4 text-center text-md-end">
+          <a href="https://x.com/ChaitanyaJ92" class="text-light me-3">
+            <i class="bi bi-twitter fs-4"></i>
+          </a>
+          <a href="https://www.linkedin.com/in/chaitanya-jawanjal-b01785270/" class="text-light me-3">
+            <i class="bi bi-linkedin fs-4"></i>
+          </a>
+          <a href="https://www.instagram.com/chaitanyadjp/" class="text-light">
+            <i class="bi bi-instagram fs-4"></i>
+          </a>
+        </div>
+      </div>
+
+      <hr class="bg-light my-3" />
+
+      <!-- Copyright Section -->
+      <div class="text-center">
+        <p class="mb-0">&copy; 2025 SmartServe. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
