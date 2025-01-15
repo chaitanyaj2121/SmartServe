@@ -14,6 +14,7 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
+const { body } = require("express-validator");
 
 const { auth } = require("../firebase-config");
 const { isLoggedIn, ismess } = require('../middlewares');
@@ -32,6 +33,9 @@ const NearbyController = require("../controllers/NearbyController");
 router.get("/", HomeController.getHomePage);
 router.get("/features", HomeController.getFeatures);
 
+router.get("/test",(err,req,res,next)=>{
+next(err);
+})
 // Auth routes
 router.get("/signup/business", AuthController.getBusinessSignupForm);
 router.post("/signup/business", upload.single('businessImage'), AuthController.registerBusiness);
@@ -40,7 +44,11 @@ router.get("/signup/user", AuthController.getSignupformForCustomer);
 router.post("/signup/user", AuthController.registerCustomer);
 
 router.get("/login", AuthController.getLoginForm);
-router.post("/login", AuthController.login);
+
+router.post("/login",[
+  body("email").isEmail().withMessage("Enter a valid email"),
+  body("password").isLength({ min: 8 }).withMessage("Password must be at least 8 characters"),
+],AuthController.login);
 
 router.get("/logout", AuthController.logout)
 

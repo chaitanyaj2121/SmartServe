@@ -74,59 +74,65 @@
       margin-top: 0.5rem;
       /* Add some space between card and index */
     }
-
   </style>
   <div class="customer-list container mt-4">
     <h2 class="text-center mb-4">Customer List</h2>
 
-    <% if (customers.length> 0) { %>
-      <% customers.forEach((customer, index)=> { %>
-        <% let formattedStartDate="N/A" ; // Default value if (customer.start_date && customer.start_date.toDate) {
-          const startDate=new Date(customer.start_date.toDate()); // Convert Firestore Timestamp to JS Date
-          formattedStartDate=startDate.toLocaleDateString("en-GB"); // Format as day/month/year } %>
-          <div class="customer-card-wrapper">
-            <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex flex-wrap align-items-center"
-              style="border: 1px solid #ddd;">
-              <div class="customer-image me-3 mb-3"
-                style="flex: 0 0 100px; height: 100px; overflow: hidden; border-radius: 50%;">
-                <img src="<%= customer.customerImage.url %>" alt="Customer Image"
-                  class="img-fluid w-100 h-100 object-fit-cover" style="border-radius: 50%;" />
-              </div>
-
-              <div class="customer-details" style="flex: 1;">
-                <span class="badge bg-success fs-5" style="margin:0.5rem 0.5rem 0 0;">
-                  #<%= index + 1 %>
+    <% if (customers.length > 0) { %>
+      <% customers.forEach((customer, index) => { %>
+        <% 
+          // Default value for formattedStartDate
+          let formattedStartDate = "N/A"; 
+    
+          // Check if customer.start_date exists and has a toDate function
+          if (customer.start_date && typeof customer.start_date.toDate === "function") {
+            const startDate = new Date(customer.start_date.toDate()); // Convert Firestore Timestamp to JS Date
+            formattedStartDate = startDate.toLocaleDateString("en-GB"); // Format as day/month/year
+          } 
+        %>
+        <div class="customer-card-wrapper">
+          <div class="customer-card p-3 mb-3 rounded shadow-sm d-flex flex-wrap align-items-center"
+            style="border: 1px solid #ddd;">
+            <div class="customer-image me-3 mb-3"
+              style="flex: 0 0 100px; height: 100px; overflow: hidden; border-radius: 50%;">
+              <img src="<%= customer.customerImage.url %>" alt="Customer Image"
+                class="img-fluid w-100 h-100 object-fit-cover" style="border-radius: 50%;" />
+            </div>
+    
+            <div class="customer-details" style="flex: 1;">
+              <span class="badge bg-success fs-5" style="margin:0.5rem 0.5rem 0 0;">
+                #<%= index + 1 %>
+              </span>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-person-circle"></i> Name:
                 </span>
-                <p class="mb-1">
-                  <span class="fw-bold me-2">
-                    <i class="bi bi-person-circle"></i> Name:
-                  </span>
-                  <%= customer.name %>
-                </p>
-                <p class="mb-1">
-                  <span class="fw-bold me-2">
-                    <i class="bi bi-currency-rupee"></i> Fees Paid:
-                  </span>₹<%= customer.feesPaid %>
-                </p>
-                <p class="mb-1">
-                  <span class="fw-bold me-2">
-                    <i class="bi bi-currency-rupee"></i> Fees Remaining:
-                  </span>
-                  ₹<%= messFees - customer.feesPaid %>
-                </p>
-                <p class="mb-1">
-                  <span class="fw-bold me-2">
-                    <i class="bi bi-telephone-fill"></i> Mobile:
-                  </span>
-                  <%= customer.mobile || "N/A" %>
-                </p>
-                <p class="mb-0">
-                  <span class="fw-bold me-2">
-                    <i class="bi bi-calendar-date"></i> Starting Date:
-                  </span>
-                  <%= formattedStartDate %>
-                </p>
-
+                <%= customer.name %>
+              </p>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-currency-rupee"></i> Fees Paid:
+                </span>₹<%= customer.feesPaid %>
+              </p>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-currency-rupee"></i> Fees Remaining:
+                </span>
+                ₹<%= messFees - customer.feesPaid %>
+              </p>
+              <p class="mb-1">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-telephone-fill"></i> Mobile:
+                </span>
+                <%= customer.mobile || "N/A" %>
+              </p>
+              <p class="mb-0">
+                <span class="fw-bold me-2">
+                  <i class="bi bi-calendar-date"></i> Starting Date:
+                </span>
+                <%= formattedStartDate %>
+              </p>
+    
               </div>
               <span style="cursor: pointer; margin:0.5rem 0.5rem 0 0;" class="badge bg-primary fs-5"
                 data-bs-toggle="modal" data-bs-target="#addCustomerModal-<%= customer.id %>">

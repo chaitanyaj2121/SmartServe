@@ -17,6 +17,19 @@ const mainRoutes = require("./routes"); // Main routes index
 // Firebase setup
 const db = admin.firestore();
 
+// const rateLimit = require("express-rate-limit");
+
+// // Create a rate limiter
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // Time window: 15 minutes
+//   max: 100, // Max requests per IP in the time window
+//   message: "Too many requests from this IP, please try again later", // Custom message for rate limit violation
+// });
+
+// // Apply the limiter to all routes
+// app.use(limiter);
+
+
 // Middleware
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,10 +51,11 @@ const sessionOptions = {
   resave: false,
   saveUninitialized: false,
   cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Secure cookies in production
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", 
   },
 };
 
@@ -63,14 +77,21 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // Use routes
 app.use("/", mainRoutes); // Use routes from the routes folder
 
 // Server setup
 app.listen(PORT, () => console.log(`App is running on Port: ${PORT}`));
 
+// Defining middleware to handle errors
+app.use((err, req, res, next) => {
+  let { statusCode = 500, message = "Sometiing Went Wrong" } = err;
+  //   res.status(statusCode).send(message);
+  res.status(statusCode).render("error.ejs", { message })
+})
 
 // Handle other routes
-app.use('*', (req, res) => {
-  res.render("pageNotFound.ejs");
+app.all('*', (req, res) => {
+  res.status(404).render("pageNotFound.ejs");
 });
